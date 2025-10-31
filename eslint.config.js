@@ -13,6 +13,7 @@ export default base(
       name: 'omg-eslint-please-work',
       files: ['**/*.vue'],
       rules: {
+        // TODO: remove after fix
         'vue/define-props-destructuring': 'off',
       },
     },

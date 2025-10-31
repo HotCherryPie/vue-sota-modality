@@ -1,0 +1,2 @@
+- Return focus to previously focused element after close
+- Add drag2close ability
