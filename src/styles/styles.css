@@ -1,3 +1,7 @@
+@layer reset;
+
+@import url('@my/utils.css/reset') layer(reset);
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 :root {
@@ -6,8 +10,12 @@
   --spacing-20: 20px;
 
   --rounding-24: 24px;
+  --rounding-modal-m: var(--rounding-24);
 
   --size-control-s: 24px;
+  --size-modal-desktop-height-max: 768px;
+  --size-modal-desktop-width-s: 390px;
+  --size-modal-desktop-width-m: 620px;
 
   --color-border-base-alfa-container: rgba(179, 182, 189, 0.12);
   --color-content-base-primary: #f0f2f5;
@@ -15,21 +23,27 @@
   --color-background-base-alfa-static-black-20: rgba(0, 0, 0, 0.2);
   --color-background-base-alfa-scrim: rgba(0, 0, 0, 0.2);
 
-  --rounding-modal-m: var(--rounding-24);
   --modal-color-bg: #fff;
   --modal-padding-modal-mobile: var(--spacing-16);
   --modal-padding-modal-desktop: var(--spacing-20);
   --modal-padding-modal-header-bottom-mobile: var(--spacing-12);
   --modal-padding-modal-header-bottom-desktop: var(--spacing-16);
-  --size-modal-desktop-height-max: 768px;
-  --size-modal-desktop-width-s: 390px;
-  --size-modal-desktop-width-m: 620px;
 }
 
 html {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    sans-serif;
 }
 
 body {
