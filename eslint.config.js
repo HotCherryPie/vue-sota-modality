@@ -1,7 +1,7 @@
 import { base } from './eslint.config.base.js';
 
 const toolingFiles = ['*.config.*'];
-const browserFiles = ['src/**/*.*'];
+const browserFiles = ['src/**/*.(js|ts|vue)'];
 
 export default base(
   {
