@@ -2,11 +2,11 @@
 import { useElementSize, watchOnce } from '@vueuse/core';
 import { computed, nextTick, reactive, useTemplateRef } from 'vue';
 
+import { useIsRendered } from '../../../utils';
 import type {
   ModalDismissActionIntent,
   ModalDismissSourceDescription,
 } from '../modal-layout/types';
-import { useIsRendered } from '../../../utils';
 
 // Most properties taken from Flutter material modals
 const CLOSING_DURATION = 200;
@@ -21,8 +21,6 @@ interface Props {
   preopened: boolean;
   detent: 'auto' | 'expanded';
   scrollable: boolean;
-  background?: string;
-  fixedWidth?: boolean;
 }
 
 interface Emits {
@@ -83,8 +81,6 @@ const dismiss = (
   intent: ModalDismissActionIntent,
   description?: ModalDismissSourceDescription,
 ) => void emit('dismiss', intent, description);
-const scrollTo: Element['scrollTo'] = (...args: any) =>
-  modalRef.value?.scrollTo(...args);
 
 // Do not use onanimationend/ontransitionend events because of inconsistency
 //  in cases of same-frame transition switch!
@@ -93,15 +89,11 @@ watchOnce(
   async () => {
     await nextTick();
     await Promise.all(
-      modalRef.value?.getAnimations().map(it => it.finished) ?? [],
+      modalRef.value?.getAnimations().map((it) => it.finished) ?? [],
     );
     emit('closed');
   },
 );
-
-defineExpose({
-  scrollTo,
-});
 </script>
 
 <template>

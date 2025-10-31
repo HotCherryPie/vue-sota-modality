@@ -1,5 +1,6 @@
 import { tryOnScopeDispose, useScrollLock, isClient } from '@vueuse/core';
-import { computed, ref, watchEffect, type WritableComputedRef } from 'vue';
+import type { WritableComputedRef } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 const counter = ref(0);
 const controller = useScrollLock(isClient ? document.body : undefined);

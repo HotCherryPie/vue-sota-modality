@@ -14,11 +14,22 @@ export const useModalLayout = () => {
     callForModalDismiss,
   } = useModalLayoutInternalState();
 
-  const openModal = <TModalValue>(modalComponent: Component, key: string, data: unknown, value: Ref) => {
-    return openModalInternal(modalComponent, key, data, value) as Promise<ModalResolution<TModalValue>> | undefined;
+  const openModal = <TModalValue>(
+    modalComponent: Component,
+    key: string,
+    data: unknown,
+    value: Ref,
+  ) => {
+    // eslint-disable-next-line ts/no-unsafe-type-assertion -- it's fine
+    return openModalInternal(modalComponent, key, data, value) as
+      | Promise<ModalResolution<TModalValue>>
+      | undefined;
   };
 
-  const dismissModal = (modalComponent: Component, action: ModalDismissAction) => {
+  const dismissModal = (
+    modalComponent: Component,
+    action: ModalDismissAction,
+  ) => {
     callForModalDismiss(modalComponent, action);
   };
 

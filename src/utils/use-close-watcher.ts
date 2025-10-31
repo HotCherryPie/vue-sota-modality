@@ -1,15 +1,9 @@
-import {
-  onScopeDispose,
-  toValue,
-  watchEffect,
-  type MaybeRefOrGetter,
-} from 'vue';
+import { onScopeDispose, toValue, watchEffect } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
-import {
-  CloseWatcher,
-  type CloseWatcherEventMap,
-} from './polyfills/close-watcher';
 import { cloneEvent } from './common';
+import { CloseWatcher } from './polyfills/close-watcher';
+import type { CloseWatcherEventMap } from './polyfills/close-watcher';
 
 interface Options {
   /**
@@ -43,9 +37,8 @@ export const useCloseWatcher = (options: Options) => {
   };
 
   const onCancel = (event_: CloseWatcherEventMap['cancel']) => {
-    const event = options.abusive
-      ? cloneEvent(event_, { cancelable: true })
-      : event_;
+    const event =
+      options.abusive ? cloneEvent(event_, { cancelable: true }) : event_;
 
     options.onCancel?.(event);
 

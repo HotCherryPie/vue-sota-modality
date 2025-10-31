@@ -50,6 +50,7 @@ export function useAsyncComponent<TComponent extends Component>(
   function patchedOnError(
     ...[error, retry, reject, attempt]: Parameters<NonNullable<typeof onError>>
   ) {
+    // eslint-disable-next-line ts/no-unsafe-return -- it's fine
     if (onError) return onError(error, retry, reject, attempt);
 
     return attempt < retries ? void retry() : void reject();
@@ -61,7 +62,9 @@ export function useAsyncComponent<TComponent extends Component>(
     ...restAsyncComponentOptions,
   });
 
+  // eslint-disable-next-line ts/no-unsafe-type-assertion, ts/no-explicit-any, ts/no-unsafe-member-access -- it's fine
   (AsyncComponentWrapper as any).mixins = [
+    // eslint-disable-next-line ts/no-unsafe-type-assertion, ts/no-explicit-any, ts/no-unsafe-member-access, ts/no-unsafe-assignment -- it's fine
     ...((AsyncComponentWrapper as any).mixins ?? []),
     {
       mounted() {
@@ -84,11 +87,12 @@ export function useAsyncComponent<TComponent extends Component>(
         //  will fetch component again, so you need to cache result by yourself. And you also need to implement
         //  same error handling process as vue does). But this way is easier, and just one line of code!
         //  In worst case - prefetch wouldn't work which is not a big tragedy
+        // eslint-disable-next-line ts/no-unsafe-call -- it's fine
         AsyncComponentWrapper['__asyncLoader']();
       } else if (import.meta.env.DEV) {
         console.error(
-          '__asyncLoader in missing in AsyncComponentWrapper!' +
-            ' Shame on the author! Tell him to refactor this on his weekend!',
+          '__asyncLoader in missing in AsyncComponentWrapper!'
+            + ' Shame on the author! Tell him to refactor this on his weekend!',
         );
       }
     },

@@ -1,15 +1,10 @@
-/* eslint-disable erasable-syntax-only/parameter-properties */
-
 import type { ModalDismissAction } from './types';
 
 export class RichCloseEvent extends Event {
   action: ModalDismissAction;
   promise: Promise<unknown> | undefined;
 
-  constructor(
-    action: ModalDismissAction,
-    promise?: Promise<unknown> | undefined,
-  ) {
+  constructor(action: ModalDismissAction, promise?: Promise<unknown>) {
     super('close', { bubbles: true });
 
     this.action = action;

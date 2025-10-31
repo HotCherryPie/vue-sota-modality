@@ -3,8 +3,7 @@ import type { If, IsNever } from 'type-fest';
 import type { Component, MaybeRefOrGetter } from 'vue';
 import { computed, toRef, toValue, watch } from 'vue';
 
-type IfNever<T, TYes, TNo> = If<IsNever<T>, TYes, TNo>;
-type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
+import { useLocationUnsafe } from '../../utils';
 
 import type {
   InferDataTypeFromModalComponent,
@@ -14,10 +13,12 @@ import type {
 } from './modal-layout';
 import { useModalLayout } from './modal-layout';
 import type { ModalDismissSourceDescription } from './modal-layout/types';
-import { useLocationUnsafe } from '../../utils';
 
-export interface UseModalOptions<Value> {
-  value?: MaybeRefOrGetter<Value>;
+type IfNever<T, TYes, TNo> = If<IsNever<T>, TYes, TNo>;
+type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
+
+export interface UseModalOptions<TValue> {
+  value?: MaybeRefOrGetter<TValue>;
 
   /**
    * @defaultValue `true`
@@ -50,6 +51,7 @@ export const useModal = <TComponent extends Component>(
     interruptFullscreenOnOpen = true,
   }: UseModalOptions<InferValueTypeFromModalComponent<TComponent>> = {},
 ) => {
+  // eslint-disable-next-line sonar/pseudo-random -- it's ok
   const usageKey = Math.random().toString();
 
   type ModalValue = InferValueTypeFromModalComponent<TComponent>;
@@ -73,7 +75,7 @@ export const useModal = <TComponent extends Component>(
   // For public usage.
   const dismiss = (
     intent: ModalDismissActionIntent,
-    description?: ModalDismissSourceDescription | undefined,
+    description?: ModalDismissSourceDescription,
   ) => {
     dismiss_({
       intent,
@@ -83,7 +85,8 @@ export const useModal = <TComponent extends Component>(
 
   const open = (...[data]: OpenFunctionArguments) => {
     if (interruptFullscreenOnOpen && document.fullscreenElement)
-      document.exitFullscreen?.();
+      // eslint-disable-next-line ts/no-unnecessary-condition -- for old browsers
+      void document.exitFullscreen?.();
 
     if (dismissOnValueChange) {
       watch(

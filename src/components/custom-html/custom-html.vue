@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import DOMPurify, { type Config as DomPurifyConfig } from 'dompurify';
-import type { SetRequired } from 'type-fest';
+
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-type Props = {
+interface Props {
   html: string;
   allowStyles?: boolean | undefined;
   allowedAttributes?: '*' | string[] | undefined;
@@ -13,12 +13,14 @@ type Props = {
   forbiddenAttributes?: string[] | undefined;
   /** Have higher priority than `allowedTags` prop */
   forbiddenTags?: string[] | undefined;
-};
+}
 
 const props = defineProps<Props>();
 
 const sanitizeOptions = computed(() => {
-  const options: SetRequired<DomPurifyConfig, 'FORBID_ATTR'> = {
+  const options: DomPurifyConfig & {
+    FORBID_ATTR: NonNullable<DomPurifyConfig['FORBID_ATTR']>;
+  } = {
     FORBID_ATTR: ['style'],
   };
 
@@ -34,7 +36,7 @@ const sanitizeOptions = computed(() => {
   }
 
   if (props.allowStyles) {
-    options.FORBID_ATTR = options.FORBID_ATTR.filter(it => it !== 'style');
+    options.FORBID_ATTR = options.FORBID_ATTR.filter((it) => it !== 'style');
     options.ALLOWED_ATTR?.push('style');
   }
 

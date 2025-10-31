@@ -1,11 +1,12 @@
 import type { ReadonlyDeep } from 'type-fest';
 import type { Component, Ref } from 'vue';
 
-import type { RichCloseEvent } from './events';
 import type {
   CustomComponentProps,
   PosixTimestampInMilliseconds,
 } from '../../../utils';
+
+import type { RichCloseEvent } from './events';
 
 /**
  * - `cancel` — modal was closed without accessing intended user-flow.
@@ -93,26 +94,25 @@ export interface ModalViewDescriptor<TData = unknown, TValue = unknown> {
   dismissedAt: PosixTimestampInMilliseconds | undefined;
 }
 
-export interface ModalLayoutChildEmits<Value = never> {
-  'update:modelValue': [value: Value];
+export interface ModalLayoutChildEmits<TValue = never> {
+  'update:modelValue': [value: TValue];
 }
 
-export type ModalLayoutChildProps<Data = never, Value = never> = {
+export type ModalLayoutChildProps<TData = never, TValue = never> = {
   active: boolean;
-  data: Data;
+  data: TData;
   requestedDismissAction: ModalDismissAction | undefined;
-  modelValue: Value;
+  modelValue: TValue;
 };
 
-export type InferDataTypeFromModalComponent<Comp extends Component> =
-  CustomComponentProps<Comp> extends { data: infer DataType }
-    ? DataType
-    : never;
+export type InferDataTypeFromModalComponent<TComponent extends Component> =
+  CustomComponentProps<TComponent> extends { data: infer DataType } ? DataType
+  : never;
 
-export type InferValueTypeFromModalComponent<Comp extends Component> =
-  CustomComponentProps<Comp> extends { modelValue: infer ValueType }
-    ? ValueType
-    : never;
+export type InferValueTypeFromModalComponent<TComponent extends Component> =
+  CustomComponentProps<TComponent> extends { modelValue: infer ValueType } ?
+    ValueType
+  : never;
 
 export type ModalLayoutChildCloseEventPayload =
   | undefined

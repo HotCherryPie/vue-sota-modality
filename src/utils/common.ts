@@ -1,4 +1,5 @@
-export const isNil = (e: unknown): e is undefined | null => e == null;
+// eslint-disable-next-line unicorn/no-null -- it's fine
+export const isNil = (it: unknown): it is undefined | null => it == null;
 
 export const noop = () => {};
 
@@ -6,7 +7,9 @@ export const cloneEvent = <const T extends Event>(
   event: T,
   init: EventInit,
 ): T => {
+  // eslint-disable-next-line ts/no-unsafe-type-assertion, ts/no-unsafe-call, ts/no-unsafe-member-access, ts/no-explicit-any -- it's fine
   return new (event as any).constructor(event.type, {
+    // eslint-disable-next-line ts/no-misused-spread -- it's fine
     ...event,
     bubbles: event.bubbles,
     cancelable: event.cancelable,

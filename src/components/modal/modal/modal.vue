@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed, useTemplateRef } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
+import { computed } from 'vue';
 
-import {
-  useModalLayoutChildApi,
-  type ModalDismissActionIntent,
-  type RichCancelEvent,
-  type RichCloseEvent,
+import { useIsRendered } from '../../../utils';
+import { useModalLayoutChildApi } from '../modal-layout';
+import type {
+  ModalDismissActionIntent,
+  RichCancelEvent,
+  RichCloseEvent,
 } from '../modal-layout';
 import type { ModalDismissSourceDescription } from '../modal-layout/types';
 
 import DesktopModal from './desktop-modal.vue';
 import MobileModal from './mobile-modal.vue';
 import type { Props, Slots } from './types';
-import { useMediaQuery } from '@vueuse/core';
-import { useIsRendered } from '../../../utils';
 
 // This events magically emitted by `useModalLayoutChildApi`
 //  and here only for correct typings. This particular events
@@ -30,12 +30,12 @@ withDefaults(defineProps<Props>(), {
   scrollable: false,
   size: 'small',
 });
+// eslint-disable-next-line vue/define-emits-declaration, ts/no-unsafe-type-assertion
 defineEmits({} as FakeEmits);
 defineSlots<Slots>();
 
 const isMobile = useMediaQuery('(width < 1024px)');
 const isModalMountedAndRendered = useIsRendered();
-const modalRef = useTemplateRef('modal');
 
 const ModalComponent = computed(() =>
   isMobile.value ? MobileModal : DesktopModal,
@@ -52,18 +52,16 @@ defineExpose({
     intent: ModalDismissActionIntent,
     description?: ModalDismissSourceDescription,
   ) => void requestClose(intent, description),
-  scrollTo: ((...args: any) =>
-    modalRef.value?.scrollTo(...args)) as Element['scrollTo'],
 });
 </script>
 
+<!-- eslint-disable vue/v-on-handler-style -->
 <template>
   <ModalComponent
-    ref="modal"
-    :active
     :scrollable
     :detent
-    :no-overscroll="true"
+    :noOverscroll="true"
+    :active
     :size
     :dismissed="isDismissed"
     :preopened="isModalMountedAndRendered"
@@ -71,7 +69,7 @@ defineExpose({
     @dismiss="requestClose"
   >
     <template #default="{ dismiss }">
-      <slot :dismiss="dismiss" />
+      <slot :dismiss />
     </template>
   </ModalComponent>
 </template>

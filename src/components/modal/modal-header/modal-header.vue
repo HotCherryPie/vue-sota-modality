@@ -9,8 +9,8 @@ import { useParentElement, useIntersectionObserver } from '@vueuse/core';
 import { useTemplateRef, ref, computed, toRef } from 'vue';
 
 import { Close, NavBack } from '../../../icons';
-import { IconButton } from '../../icon-button';
 import { CustomHtml } from '../../custom-html';
+import { IconButton } from '../../icon-button';
 
 import type { Props, Emits, Slots } from './types';
 
@@ -35,7 +35,7 @@ const headerButtons = computed(
 );
 
 useIntersectionObserver(
-  () => overlayHeaderTriggerRef.value as unknown as HTMLElement,
+  () => overlayHeaderTriggerRef.value,
   ([it]) => {
     overlayHeaderShown.value = it?.isIntersecting === false;
   },
@@ -86,7 +86,7 @@ useIntersectionObserver(
           <CustomHtml
             :class="$style.title"
             :html="headerTitle"
-            :allowed-tags="[]"
+            :allowedTags="[]"
           />
           <div :class="[$style.buttonsStub, $style.buttonsArray]">
             <component
@@ -101,7 +101,7 @@ useIntersectionObserver(
     </div>
 
     <div
-      v-if="$slots.cover"
+      v-if="$slots['cover']"
       :class="[$style.coverHolder, cutIn && $style.cutIn]"
     >
       <div :class="$style.coverButtonsHolder">
@@ -247,12 +247,14 @@ useIntersectionObserver(
     );
 
     @supports (mask-mode: luminance) {
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='white'%3E%3C/rect%3E%3Crect width='100%25' height='200%25' fill='black' ry='100vh'%3E%3C/rect%3E%3C/svg%3E"),
+      mask-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='white'%3E%3C/rect%3E%3Crect width='100%25' height='200%25' fill='black' ry='100vh'%3E%3C/rect%3E%3C/svg%3E"),
         linear-gradient(#fff, #fff);
       mask-mode: luminance;
       mask-position: bottom, top;
       mask-repeat: no-repeat;
-      mask-size: 100% var(--rounding-modal-m),
+      mask-size:
+        100% var(--rounding-modal-m),
         100% calc(100% - var(--rounding-modal-m));
     }
   }

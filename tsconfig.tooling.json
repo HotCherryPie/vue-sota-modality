@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "@my/configs.js/tsconfig.base.json",
+    "@my/configs.js/tsconfig.base.node@22.json"
+  ],
+  "include": [
+    "**/.config/**/*.*",
+    "**/eslint.config.*",
+    "**/prettier.config.*",
+    "**/vite.config.*"
+  ],
+
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "allowJs": true
+  }
+}

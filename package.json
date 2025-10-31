@@ -3,10 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "npm@10.9.0",
+  "engineStrict": true,
+  "engines": {
+    "node": ">=22.21.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "onFail": "error"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cq:typecheck": "vue-tsc -b"
   },
   "dependencies": {
     "@vueuse/core": "^14.0.0",
@@ -17,10 +29,11 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@my/configs.js": "git+https://github.com/HotCherryPie/configs.js.git#semver:v0.0.0-alpha-2",
     "@types/node": "^24.6.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
-    "typescript": "~5.9.3",
+    "typescript": "~5.7.3",
     "vite": "npm:rolldown-vite@7.1.14",
     "vue-tsc": "^3.1.0"
   },

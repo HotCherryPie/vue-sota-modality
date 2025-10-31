@@ -1,5 +1,6 @@
 import type { Component } from 'vue';
 
+// eslint-disable-next-line ts/no-namespace
 export namespace Props {
   export interface Button {
     Icon: Component;
@@ -19,7 +20,6 @@ export type Props = {
   subtitle?: string;
   isBackShown?: boolean;
   cutIn?: boolean;
-  background?: string;
 
   // TODO(uikit/i18n): use uikit default translations
   backText?: string;

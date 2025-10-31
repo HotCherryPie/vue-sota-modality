@@ -1,4 +1,5 @@
-import { shallowReactive, toRef, type Component } from 'vue';
+import { shallowReactive, toRef } from 'vue';
+import type { Component } from 'vue';
 
 export interface Route<TName extends string = string> {
   name: TName;
@@ -9,14 +10,18 @@ export interface UseModalRouterOptions<TRouteName extends string> {
   initialRoute: TRouteName;
 }
 
-export const useModalRouter = <TRouteName extends string>(options: UseModalRouterOptions<TRouteName>) => {
+export const useModalRouter = <TRouteName extends string>(
+  options: UseModalRouterOptions<TRouteName>,
+) => {
   const routes = shallowReactive<Array<Route<TRouteName>>>([]);
   const navigationStack = shallowReactive<TRouteName[]>([options.initialRoute]);
   const canNavigateBack = toRef(() => navigationStack.length > 1);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- should be guaranteed
+  // eslint-disable-next-line ts/no-non-null-assertion -- should be guaranteed
   const currentRouteName = toRef(() => navigationStack.at(-1)!);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- should be guaranteed
-  const currentRoute = toRef(() => routes.find((it) => it.name === currentRouteName.value)!);
+  const currentRoute = toRef(
+    // eslint-disable-next-line ts/no-non-null-assertion -- should be guaranteed
+    () => routes.find((it) => it.name === currentRouteName.value)!,
+  );
 
   const addRoute = (route: Route<TRouteName>) => void routes.push(route);
 

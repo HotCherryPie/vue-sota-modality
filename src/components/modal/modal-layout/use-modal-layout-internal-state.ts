@@ -2,22 +2,40 @@ import { createSharedComposable, createEventHook } from '@vueuse/core';
 import type { Component, Ref } from 'vue';
 import { ref, shallowReactive, shallowRef } from 'vue';
 
-import type { ModalDismissAction, ModalResolution, ModalViewDescriptor } from './types';
+import type {
+  ModalDismissAction,
+  ModalResolution,
+  ModalViewDescriptor,
+} from './types';
 
 export const useModalLayoutInternalState = createSharedComposable(() => {
   // We should not care about any possible changes in descriptors.
   //  Also: `reactive` unwraps refs, but at least `requestedDismissAction` should be preserved "as is"
   const modals = shallowReactive(new Map<Component, ModalViewDescriptor>());
 
-  const openEvent = createEventHook<{ component: Component; descriptor: ModalViewDescriptor }>();
-  const dismissEvent = createEventHook<{ component: Component; descriptor: ModalViewDescriptor }>();
+  const openEvent = createEventHook<{
+    component: Component;
+    descriptor: ModalViewDescriptor;
+  }>();
+  const dismissEvent = createEventHook<{
+    component: Component;
+    descriptor: ModalViewDescriptor;
+  }>();
 
-  const getModalForComponent = (modalComponent: Component) => modals.get(modalComponent);
+  const getModalForComponent = (modalComponent: Component) =>
+    modals.get(modalComponent);
 
-  const isSimilarModalAlreadyOpened = (modalComponent: Component) => getModalForComponent(modalComponent) !== undefined;
-  const isThisExactModalOpened = (key: string) => [...modals.values()].some((it) => it.key === key);
+  const isSimilarModalAlreadyOpened = (modalComponent: Component) =>
+    getModalForComponent(modalComponent) !== undefined;
+  const isThisExactModalOpened = (key: string) =>
+    [...modals.values()].some((it) => it.key === key);
 
-  const openModal = (modalComponent: Component, key: string, data: unknown, value: Ref) => {
+  const openModal = (
+    modalComponent: Component,
+    key: string,
+    data: unknown,
+    value: Ref,
+  ) => {
     if (isSimilarModalAlreadyOpened(modalComponent)) {
       if (import.meta.env.DEV) console.warn('Similar modal is already opened!');
       return;
@@ -36,21 +54,26 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
     };
 
     modals.set(modalComponent, descriptor);
-    openEvent.trigger({ component: modalComponent, descriptor });
+    void openEvent.trigger({ component: modalComponent, descriptor });
 
     return resolutionPromise.promise;
   };
 
-  const callForModalDismiss = (modalComponent: Component, action: ModalDismissAction) => {
+  const callForModalDismiss = (
+    modalComponent: Component,
+    action: ModalDismissAction,
+  ) => {
     const modal = getModalForComponent(modalComponent);
 
     if (modal === undefined) {
-      if (import.meta.env.DEV) console.warn('You try to dismiss modal which is not presented yet!');
+      if (import.meta.env.DEV)
+        console.warn('You try to dismiss modal which is not presented yet!');
       return;
     }
 
     if (modal.isDismissed.value) {
-      if (import.meta.env.DEV) console.warn('You try to dismiss already dismissed modal!');
+      if (import.meta.env.DEV)
+        console.warn('You try to dismiss already dismissed modal!');
       return;
     }
 
@@ -67,7 +90,10 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
     const modal = getModalForComponent(modalComponent);
 
     if (modal === undefined) {
-      if (import.meta.env.DEV) console.warn('scheduleModalRemoving was called for non-presented modal!');
+      if (import.meta.env.DEV)
+        console.warn(
+          '.scheduleModalRemoving() was called for non-presented modal!',
+        );
       return;
     }
 
@@ -76,8 +102,8 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
     modal.requestedDismissAction.value = action;
     modal.resolutionPromise.resolve({ value: modal.value.value, action });
 
-    dismissEvent.trigger({ component: modalComponent, descriptor: modal });
-    removePromise.then(() => void modals.delete(modalComponent));
+    void dismissEvent.trigger({ component: modalComponent, descriptor: modal });
+    void removePromise.then(() => void modals.delete(modalComponent));
   };
 
   return {

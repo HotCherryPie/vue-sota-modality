@@ -1,11 +1,13 @@
 import type { AsyncComponentLoader, Component } from 'vue';
 
-import { useAsyncComponent, type MaybeReadonlyRefOrGetter } from '../../utils';
+import { useAsyncComponent } from '../../utils';
+import type { MaybeReadonlyRefOrGetter } from '../../utils';
 
 import type { InferValueTypeFromModalComponent } from './modal-layout';
-import { useModal, type UseModalOptions } from './use-modal';
+import { useModal } from './use-modal';
+import type { UseModalOptions } from './use-modal';
 
-export interface UseAsyncModalOptions<Value> extends UseModalOptions<Value> {
+export interface UseAsyncModalOptions<TValue> extends UseModalOptions<TValue> {
   /**
    * @default false
    */

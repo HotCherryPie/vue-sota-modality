@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { computed, watch, type Component } from 'vue';
+import { computed, watch } from 'vue';
+import type { Component } from 'vue';
+
+import { noop } from '../../../utils';
 
 import { RichCloseEvent } from './events';
 import { ModalLayoutChildContext } from './modal-layout-child-context';
@@ -9,7 +12,6 @@ import type {
   ModalViewDescriptor,
 } from './types';
 import { useModalLayoutInternalState } from './use-modal-layout-internal-state';
-import { noop } from '../../../utils';
 
 export interface ModalOpenEvent {
   name: string | undefined;
@@ -60,9 +62,9 @@ state.onDismiss(
   ({ component, descriptor }) =>
     void emit('modalDismiss', {
       name: resolveModalName(component),
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed here
+      // eslint-disable-next-line ts/no-non-null-assertion -- guaranteed here
       time: descriptor.dismissedAt!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- guaranteed here
+      // eslint-disable-next-line ts/no-non-null-assertion -- guaranteed here
       action: descriptor.requestedDismissAction.value!,
     }),
 );
@@ -71,7 +73,7 @@ const list = computed(() => [...state.modals.entries()]);
 
 // Modal is active if it is first non-dismissed from right
 const isModalActive = (index: number) =>
-  index === list.value.findLastIndex(it => !it[1].isDismissed.value);
+  index === list.value.findLastIndex((it) => !it[1].isDismissed.value);
 
 const handleClose = (
   component: Component,
@@ -96,17 +98,17 @@ const handleClose = (
 
 watch(
   () => list.value.length > 0,
-  someModalsAreOpen => {
+  (someModalsAreOpen) => {
     emit('presenceChange', someModalsAreOpen);
   },
 );
 
 const resolveModalName = (it: Component) =>
-  it.name === 'AsyncComponentWrapper'
-    ? // @ts-expect-error it is what it is
-      it.__asyncResolved?.analyticName
-    : // @ts-expect-error it is what it is
-      it.analyticName;
+  it.name === 'AsyncComponentWrapper' ?
+    // @ts-expect-error it is what it is
+    it.__asyncResolved?.analyticName
+    // @ts-expect-error it is what it is
+  : it.analyticName;
 
 const handleModalMount = (
   component: Component,
@@ -128,9 +130,9 @@ const handleModalUnmounted = (
     // There is a possible situation where modal can be unmounted without
     //  `dismiss()` call. So we handle this case as `wait: -1`
     wait:
-      descriptor.dismissedAt === undefined
-        ? -1
-        : performance.now() - descriptor.dismissedAt,
+      descriptor.dismissedAt === undefined ?
+        -1
+      : performance.now() - descriptor.dismissedAt,
   });
 };
 </script>
@@ -144,13 +146,13 @@ const handleModalUnmounted = (
             :is="component"
             :active="isModalActive(index)"
             :data="descriptor.data"
-            :model-value="descriptor.value.value"
-            :requested-dismiss-action="descriptor.requestedDismissAction.value"
-            @update:model-value="descriptor.value.value = $event"
+            :modelValue="descriptor.value.value"
+            :requestedDismissAction="descriptor.requestedDismissAction.value"
+            @update:modelValue="descriptor.value.value = $event"
             @cancel.stop
             @close.stop="handleClose(component, $event)"
             @vue:mounted="handleModalMount(component, descriptor)"
-            @vue:before-unmount="handleModalUnmounted(component, descriptor)"
+            @vue:beforeUnmount="handleModalUnmounted(component, descriptor)"
           />
         </Suspense>
       </ModalLayoutChildContext>

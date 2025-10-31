@@ -1,3 +1,5 @@
+/* eslint-disable sonar/redundant-type-aliases */
+
 // #region Region
 /**
  * {@link https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 | Reference}
@@ -59,6 +61,6 @@ export type PosixTimestampInSeconds = number;
 
 export type AbsoluteUrl = string;
 export type RelativeUrl = string;
-export type AnyUrl = AbsoluteUrl | RelativeUrl;
+export type AnyUrl = AbsoluteUrl;
 
 export type UUIDv4 = string;
