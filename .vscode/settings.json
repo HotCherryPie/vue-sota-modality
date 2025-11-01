@@ -44,6 +44,6 @@
   "eslint.format.enable": true,
   "eslint.runtime": "node",
 
-  "cSpell.language": "en,ru",
-  "cSpell.words": ["dompurify", "preopened", "vueuse"]
+  "cSpell.language": "en",
+  "cSpell.words": ["dompurify", "nolyfill", "preopened", "vueuse"]
 }

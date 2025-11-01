@@ -18,7 +18,8 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "cq:typecheck": "vue-tsc -b"
+    "cq:typecheck": "vue-tsc -b",
+    "nolyfill": "npx nolyfill"
   },
   "dependencies": {
     "@vueuse/core": "~14.0.0",
@@ -38,6 +39,7 @@
     "vue-tsc": "~3.1.0"
   },
   "overrides": {
-    "vite": "npm:rolldown-vite@7.1.20"
+    "vite": "npm:rolldown-vite@7.1.20",
+    "is-core-module": "npm:@nolyfill/is-core-module@^1"
   }
 }
