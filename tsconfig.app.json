@@ -17,15 +17,12 @@
     //  sometimes unavailable API's.
     "skipLibCheck": true,
 
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "lib": ["ES2024", "DOM", "DOM.Iterable", "ESNext.Iterator"],
 
     // TODO: move to @my/configs.js ?
     "target": "esnext",
 
     // TODO: move to @my/configs.js
     "types": ["vite/client"]
-
-    // TODO
-    // "erasableSyntaxOnly": true
   }
 }

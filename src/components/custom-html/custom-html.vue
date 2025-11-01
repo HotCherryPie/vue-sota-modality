@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DOMPurify, { type Config as DomPurifyConfig } from 'dompurify';
-
+import DOMPurify from 'dompurify';
+import type { Config as DomPurifyConfig } from 'dompurify';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -70,10 +70,10 @@ const handleNavigation = (event: MouseEvent) => {
 </script>
 
 <template>
-  <!-- eslint-disable-next-line vue/no-v-html -->
+  <!-- eslint-disable vue/no-v-html -->
   <div
     :class="$style.root"
-    @click="handleNavigation"
+    @click="handleNavigation($event)"
     v-html="DOMPurify.sanitize(props.html, sanitizeOptions)"
   />
 </template>

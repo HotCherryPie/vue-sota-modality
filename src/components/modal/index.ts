@@ -4,13 +4,9 @@ export type {
   InferDataTypeFromModalComponent,
   InferValueTypeFromModalComponent,
   ModalDismissSource,
-  ModalDismissActionIntent,
   ModalDismissAction,
   ModalResolution,
-  ModalOpenEvent,
-  ModalDismissEvent,
-  ModalMountedEvent,
-  ModalUnmountedEvent,
+  ModalLayoutEmits,
 } from './modal-layout';
 
 export {
@@ -22,9 +18,7 @@ export {
 } from './modal-layout';
 export { useModal, type UseModalOptions } from './use-modal';
 export { useAsyncModal, type UseAsyncModalOptions } from './use-async-modal';
-export * from './use-modal-router';
 
 export { Modal } from './modal';
 export { ModalFooter } from './modal-footer';
-
 export { ModalHeader } from './modal-header';

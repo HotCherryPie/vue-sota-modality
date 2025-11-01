@@ -9,32 +9,35 @@ import { defineAsyncComponent, ref, toValue } from 'vue';
 
 import type { MaybeReadonlyRefOrGetter } from './types';
 
+export interface UseAsyncComponentOptions {
+  /**
+   * Number of prefetch/fetch retries
+   */
+  retries?: number | undefined;
+
+  /**
+   * Whether component should be prefetched.
+   */
+  prefetch?: MaybeReadonlyRefOrGetter<boolean | undefined>;
+}
+
 /**
  * Main reasons for this helper is ability to prefetch async component and be able to track fetch state
  * @param source same type as for `defineAsyncComponent`
- * @param options.retries number of prefetch/fetch retries
- * @param options.prefetch whether component should be prefetched
+ * @param options options
  */
 export function useAsyncComponent<TComponent extends Component>(
   source: AsyncComponentLoader<TComponent> | AsyncComponentOptions<TComponent>,
-  {
-    retries = Infinity,
-    prefetch = true,
-  }: {
-    retries?: number | undefined;
-    prefetch?: MaybeReadonlyRefOrGetter<boolean | undefined>;
-  } = {},
+  options: UseAsyncComponentOptions = {},
 ) {
+  const { retries = Infinity, prefetch = true } = options;
+
   const isLoading = ref(false);
   const isLoaded = ref(false);
-  const asyncComponentWrapperIsMounted = ref(false);
+  const wrapperIsMounted = ref(false);
 
-  const {
-    loader,
-    // eslint-disable-next-line unicorn/no-useless-undefined
-    onError = undefined,
-    ...restAsyncComponentOptions
-  } = typeof source === 'function' ? { loader: source } : source;
+  const { loader, onError, ...restAsyncComponentOptions } =
+    typeof source === 'function' ? { loader: source } : source;
 
   async function patchedLoader() {
     isLoading.value = true;
@@ -68,10 +71,10 @@ export function useAsyncComponent<TComponent extends Component>(
     ...((AsyncComponentWrapper as any).mixins ?? []),
     {
       mounted() {
-        asyncComponentWrapperIsMounted.value = true;
+        wrapperIsMounted.value = true;
       },
       unmounted() {
-        asyncComponentWrapperIsMounted.value = false;
+        wrapperIsMounted.value = false;
       },
     } satisfies ComponentOptionsMixin,
   ];
@@ -102,7 +105,7 @@ export function useAsyncComponent<TComponent extends Component>(
   return [
     AsyncComponentWrapper,
     {
-      asyncComponentWrapperIsMounted,
+      asyncComponentWrapperIsMounted: wrapperIsMounted,
       isLoading,
       isLoaded,
     },

@@ -4,8 +4,8 @@ import { computed, nextTick, reactive, useTemplateRef } from 'vue';
 
 import { useIsRendered } from '../../../utils';
 import type {
-  ModalDismissActionIntent,
-  ModalDismissSourceDescription,
+  ModalDismissAction,
+  ModalDismissSource,
 } from '../modal-layout/types';
 
 // Most properties taken from Flutter material modals
@@ -26,16 +26,16 @@ interface Props {
 interface Emits {
   closed: [];
   dismiss: [
-    intent: ModalDismissActionIntent,
-    description: ModalDismissSourceDescription,
+    intent: ModalDismissAction.Intent,
+    description: ModalDismissSource.Description | undefined,
   ];
 }
 
 interface Slots {
   default: (props: {
     dismiss: (
-      intent: ModalDismissActionIntent,
-      description?: ModalDismissSourceDescription,
+      intent: ModalDismissAction.Intent,
+      description?: ModalDismissSource.Description,
     ) => void;
   }) => unknown;
 }
@@ -78,8 +78,8 @@ const backdropStyle = reactive({
 });
 
 const dismiss = (
-  intent: ModalDismissActionIntent,
-  description?: ModalDismissSourceDescription,
+  intent: ModalDismissAction.Intent,
+  description?: ModalDismissSource.Description,
 ) => void emit('dismiss', intent, description);
 
 // Do not use onanimationend/ontransitionend events because of inconsistency

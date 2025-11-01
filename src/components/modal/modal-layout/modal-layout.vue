@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue';
+import { watch } from 'vue';
 import type { Component } from 'vue';
 
 import { noop } from '../../../utils';
@@ -9,44 +9,12 @@ import { ModalLayoutChildContext } from './modal-layout-child-context';
 import type {
   ModalDismissAction,
   ModalLayoutChildCloseEventPayload,
+  ModalLayoutEmits,
   ModalViewDescriptor,
 } from './types';
 import { useModalLayoutInternalState } from './use-modal-layout-internal-state';
 
-export interface ModalOpenEvent {
-  name: string | undefined;
-  time: number;
-}
-
-export interface ModalDismissEvent {
-  name: string | undefined;
-  time: number;
-  action: ModalDismissAction;
-}
-
-export interface ModalMountedEvent {
-  name: string | undefined;
-
-  /** Time in milliseconds between mount and `open()` call */
-  wait: number;
-}
-
-export interface ModalUnmountedEvent {
-  name: string | undefined;
-
-  /** Time in milliseconds between `dismiss()` call and unmount */
-  wait: number;
-}
-
-interface Emits {
-  modalOpen: [ModalOpenEvent];
-  modalDismiss: [ModalDismissEvent];
-  modalMounted: [ModalMountedEvent];
-  modalUnmounted: [ModalUnmountedEvent];
-  presenceChange: [someModalsAreOpen: boolean];
-}
-
-const emit = defineEmits<Emits>();
+const emit = defineEmits<ModalLayoutEmits>();
 
 const state = useModalLayoutInternalState();
 
@@ -69,11 +37,14 @@ state.onDismiss(
     }),
 );
 
-const list = computed(() => [...state.modals.entries()]);
-
 // Modal is active if it is first non-dismissed from right
 const isModalActive = (index: number) =>
-  index === list.value.findLastIndex((it) => !it[1].isDismissed.value);
+  index
+  // TODO: remove `Iterator.from()` after fix
+  //  https://github.com/vuejs/core/issues/12615
+  === Iterator.from(state.modals.values())
+    .toArray()
+    .findLastIndex((it) => !it.isDismissed.value);
 
 const handleClose = (
   component: Component,
@@ -97,7 +68,7 @@ const handleClose = (
 };
 
 watch(
-  () => list.value.length > 0,
+  () => state.modals.size > 0,
   (someModalsAreOpen) => {
     emit('presenceChange', someModalsAreOpen);
   },
@@ -139,7 +110,10 @@ const handleModalUnmounted = (
 
 <template>
   <div :class="$style.wrapper">
-    <template v-for="([component, descriptor], index) of list" :key="component">
+    <template
+      v-for="([component, descriptor], index) of state.modals"
+      :key="component"
+    >
       <ModalLayoutChildContext :descriptor :active="isModalActive(index)">
         <Suspense>
           <component

@@ -7,11 +7,7 @@ import { isNil, useBodyScrollLock, useCloseWatcher } from '../../../utils';
 
 import { RichCancelEvent, RichCloseEvent } from './events';
 import { ModalLayoutChildContextKey } from './modal-layout-child-context';
-import type {
-  ModalDismissAction,
-  ModalDismissActionIntent,
-  ModalDismissSourceDescription,
-} from './types';
+import type { ModalDismissAction, ModalDismissSource } from './types';
 
 const getRootHtmlElement = (element: MaybeElement) => {
   if (isNil(element)) return;
@@ -118,16 +114,16 @@ export function useModalLayoutChildApi(init: UseModalLayoutChildApiInit) {
     ...context,
     commitClosedState: () => void closePromise?.resolve(),
     requestClose: (
-      intent: ModalDismissActionIntent,
-      description?: ModalDismissSourceDescription,
+      intent: ModalDismissAction.Intent,
+      description?: ModalDismissSource.Description,
     ) =>
       void onCancel({
         intent,
         source: { origin: 'user', input: 'ui', description },
       }),
     close: (
-      intent: ModalDismissActionIntent,
-      description?: ModalDismissSourceDescription,
+      intent: ModalDismissAction.Intent,
+      description?: ModalDismissSource.Description,
     ) =>
       void onClose({
         intent,

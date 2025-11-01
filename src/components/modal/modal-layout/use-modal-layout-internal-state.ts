@@ -28,7 +28,7 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
   const isSimilarModalAlreadyOpened = (modalComponent: Component) =>
     getModalForComponent(modalComponent) !== undefined;
   const isThisExactModalOpened = (key: string) =>
-    [...modals.values()].some((it) => it.key === key);
+    modals.values().some((it) => it.key === key);
 
   const openModal = (
     modalComponent: Component,

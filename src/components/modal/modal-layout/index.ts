@@ -4,12 +4,10 @@ export type {
   InferDataTypeFromModalComponent,
   InferValueTypeFromModalComponent,
   ModalDismissSource,
-  ModalDismissActionIntent,
   ModalDismissAction,
   ModalResolution,
+  ModalLayoutEmits,
 } from './types';
-
-export type { ModalDismissEvent, ModalMountedEvent, ModalOpenEvent, ModalUnmountedEvent } from './modal-layout.vue';
 
 export { RichCancelEvent, RichCloseEvent } from './events';
 

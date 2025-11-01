@@ -1,19 +1,30 @@
 import { shallowReactive, toRef } from 'vue';
-import type { Component } from 'vue';
+import type { Component, Ref } from 'vue';
 
-export interface Route<TName extends string = string> {
-  name: TName;
-  component: Component;
+export namespace PrimitiveRouter {
+  export interface Route<TName extends string = string> {
+    name: TName;
+    component: Component;
+  }
 }
 
-export interface UseModalRouterOptions<TRouteName extends string> {
-  initialRoute: TRouteName;
+export interface PrimitiveRouter<TRouteName extends string> {
+  currentRoute: Readonly<Ref<PrimitiveRouter.Route<TRouteName>>>;
+  canNavigateBack: Readonly<Ref<boolean>>;
+  addRoute: (route: PrimitiveRouter.Route<TRouteName>) => void;
+  navigateTo: (routeName: TRouteName, replace: boolean) => void;
+  navigateBack: () => void;
+  clearNavigationHistory: () => void;
 }
 
-export const useModalRouter = <TRouteName extends string>(
-  options: UseModalRouterOptions<TRouteName>,
-) => {
-  const routes = shallowReactive<Array<Route<TRouteName>>>([]);
+export interface UsePrimitiveRouterOptions<TRouteName extends string> {
+  initialRoute: NoInfer<TRouteName>;
+}
+
+export const usePrimitiveRouter = <TRouteName extends string>(
+  options: UsePrimitiveRouterOptions<NoInfer<TRouteName>>,
+): PrimitiveRouter<NoInfer<TRouteName>> => {
+  const routes = shallowReactive<Array<PrimitiveRouter.Route<TRouteName>>>([]);
   const navigationStack = shallowReactive<TRouteName[]>([options.initialRoute]);
   const canNavigateBack = toRef(() => navigationStack.length > 1);
   // eslint-disable-next-line ts/no-non-null-assertion -- should be guaranteed
@@ -23,13 +34,15 @@ export const useModalRouter = <TRouteName extends string>(
     () => routes.find((it) => it.name === currentRouteName.value)!,
   );
 
-  const addRoute = (route: Route<TRouteName>) => void routes.push(route);
+  const addRoute = (route: PrimitiveRouter.Route<TRouteName>) =>
+    void routes.push(route);
 
   const navigateBack = () => {
     if (canNavigateBack.value) navigationStack.pop();
   };
 
   const navigateTo = (routeName: TRouteName, replace = false) => {
+    // eslint-disable-next-line sonar/no-selector-parameter -- it's fine
     if (replace) navigationStack[navigationStack.length - 1] = routeName;
     else navigationStack.push(routeName);
   };

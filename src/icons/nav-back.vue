@@ -1,5 +1,6 @@
 <template>
   <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <!-- eslint-disable-next-line vue/require-component-is -->
     <component is="style">
       @scope { :scope:dir(rtl) { transform: scaleX(-1); } }
     </component>

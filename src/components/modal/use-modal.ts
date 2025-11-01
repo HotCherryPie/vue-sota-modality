@@ -1,18 +1,17 @@
-import { tryOnScopeDispose } from '@vueuse/core';
+import { tryOnScopeDispose, watchOnce } from '@vueuse/core';
 import type { If, IsNever } from 'type-fest';
 import type { Component, MaybeRefOrGetter } from 'vue';
-import { computed, toRef, toValue, watch } from 'vue';
+import { computed, toRef, watch } from 'vue';
 
-import { useLocationUnsafe } from '../../utils';
+import { useCurrentUrl } from '../../utils';
 
 import type {
   InferDataTypeFromModalComponent,
   InferValueTypeFromModalComponent,
   ModalDismissAction,
-  ModalDismissActionIntent,
 } from './modal-layout';
 import { useModalLayout } from './modal-layout';
-import type { ModalDismissSourceDescription } from './modal-layout/types';
+import type { ModalDismissSource } from './modal-layout/types';
 
 type IfNever<T, TYes, TNo> = If<IsNever<T>, TYes, TNo>;
 type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
@@ -62,7 +61,7 @@ export const useModal = <TComponent extends Component>(
     IfUndefined<ModalData, [data?: ModalData], [data: ModalData]>
   >;
 
-  const location = useLocationUnsafe();
+  const location = useCurrentUrl();
   const { openModal, dismissModal, isModalOpened, isModalOpenedExact } =
     useModalLayout();
   const valueRef = toRef(value);
@@ -74,8 +73,8 @@ export const useModal = <TComponent extends Component>(
 
   // For public usage.
   const dismiss = (
-    intent: ModalDismissActionIntent,
-    description?: ModalDismissSourceDescription,
+    intent: ModalDismissAction.Intent,
+    description?: ModalDismissSource.Description,
   ) => {
     dismiss_({
       intent,
@@ -89,7 +88,7 @@ export const useModal = <TComponent extends Component>(
       void document.exitFullscreen?.();
 
     if (dismissOnValueChange) {
-      watch(
+      watchOnce(
         valueRef,
         () =>
           void dismiss_({
@@ -100,9 +99,6 @@ export const useModal = <TComponent extends Component>(
               description: undefined,
             },
           }),
-        {
-          once: true,
-        },
       );
     }
 
@@ -127,7 +123,7 @@ export const useModal = <TComponent extends Component>(
 
   if (dismissOnRouteChange) {
     watch(
-      () => toValue(location.value.pathname),
+      () => location.value.pathname,
       () => {
         if (isOpenedExact.value)
           dismiss_({

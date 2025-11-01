@@ -5,11 +5,11 @@ import { computed } from 'vue';
 import { useIsRendered } from '../../../utils';
 import { useModalLayoutChildApi } from '../modal-layout';
 import type {
-  ModalDismissActionIntent,
+  ModalDismissAction,
   RichCancelEvent,
   RichCloseEvent,
 } from '../modal-layout';
-import type { ModalDismissSourceDescription } from '../modal-layout/types';
+import type { ModalDismissSource } from '../modal-layout/types';
 
 import DesktopModal from './desktop-modal.vue';
 import MobileModal from './mobile-modal.vue';
@@ -49,8 +49,8 @@ const { isDismissed, active, requestClose, commitClosedState } =
 
 defineExpose({
   dismiss: (
-    intent: ModalDismissActionIntent,
-    description?: ModalDismissSourceDescription,
+    intent: ModalDismissAction.Intent,
+    description?: ModalDismissSource.Description,
   ) => void requestClose(intent, description),
 });
 </script>

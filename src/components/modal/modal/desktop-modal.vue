@@ -4,8 +4,8 @@ import { computed, nextTick, useTemplateRef } from 'vue';
 
 import { useIsRendered } from '../../../utils';
 import type {
-  ModalDismissActionIntent,
-  ModalDismissSourceDescription,
+  ModalDismissAction,
+  ModalDismissSource,
 } from '../modal-layout/types';
 
 const OPEN_DURATION = 300;
@@ -23,16 +23,16 @@ interface Props {
 interface Emits {
   closed: [];
   dismiss: [
-    intent: ModalDismissActionIntent,
-    description: ModalDismissSourceDescription,
+    intent: ModalDismissAction.Intent,
+    description: ModalDismissSource.Description | undefined,
   ];
 }
 
 interface Slots {
   default: (props: {
     dismiss: (
-      intent: ModalDismissActionIntent,
-      description?: ModalDismissSourceDescription,
+      intent: ModalDismissAction.Intent,
+      description?: ModalDismissSource.Description,
     ) => void;
   }) => unknown;
 }
@@ -55,8 +55,8 @@ const isOpen = computed(
 );
 
 const dismiss = (
-  intent: ModalDismissActionIntent,
-  description?: ModalDismissSourceDescription,
+  intent: ModalDismissAction.Intent,
+  description?: ModalDismissSource.Description,
 ) => void emit('dismiss', intent, description);
 
 // Do not use onanimationend/ontransitionend events because of inconsistency
