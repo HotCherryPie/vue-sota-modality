@@ -4,18 +4,20 @@ import type { Config as DomPurifyConfig } from 'dompurify';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-interface Props {
-  html: string;
-  allowStyles?: boolean | undefined;
-  allowedAttributes?: '*' | string[] | undefined;
-  allowedTags?: '*' | string[] | undefined;
-  /** Have higher priority than `allowedAttributes` prop */
-  forbiddenAttributes?: string[] | undefined;
-  /** Have higher priority than `allowedTags` prop */
-  forbiddenTags?: string[] | undefined;
+export declare namespace Types {
+  export interface Props {
+    html: string;
+    allowStyles?: boolean | undefined;
+    allowedAttributes?: '*' | string[] | undefined;
+    allowedTags?: '*' | string[] | undefined;
+    /** Have higher priority than `allowedAttributes` prop */
+    forbiddenAttributes?: string[] | undefined;
+    /** Have higher priority than `allowedTags` prop */
+    forbiddenTags?: string[] | undefined;
+  }
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Types.Props>();
 
 const sanitizeOptions = computed(() => {
   const options: DomPurifyConfig & {
