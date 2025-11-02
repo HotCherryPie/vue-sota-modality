@@ -1,9 +1,17 @@
 import { useCurrentElement } from '@vueuse/core';
 import type { MaybeElement } from '@vueuse/core';
-import { watch, inject, toValue } from 'vue';
-import type { MaybeRefOrGetter } from 'vue';
+import { watch, inject } from 'vue';
 
-import { isNil, useBodyScrollLock, useCloseWatcher } from '../../../utils';
+import {
+  isNil,
+  toValueWithArgument,
+  useBodyScrollLock,
+  useCloseWatcher,
+} from '../../../utils';
+import type {
+  InferInjectionKeyData,
+  MaybeReadonlyRefOrGetterWithArgument,
+} from '../../../utils';
 
 import { RichCancelEvent, RichCloseEvent } from './events';
 import { ModalLayoutChildContextKey } from './modal-layout-child-context';
@@ -16,14 +24,22 @@ const getRootHtmlElement = (element: MaybeElement) => {
   return element;
 };
 
+type Context = InferInjectionKeyData<typeof ModalLayoutChildContextKey>;
+
 type UseModalLayoutChildApiInit = {
+  // TODO: move this logic to implementation?
+  active?: MaybeReadonlyRefOrGetterWithArgument<boolean | undefined, Context>;
+
   /**
    * Locks scroll on body. Releases automatically on moment, when modal
    *  becomes dismissed (before close animation).
    *
    * @default false
    */
-  lockScroll?: MaybeRefOrGetter<boolean> | undefined;
+  lockScroll?: MaybeReadonlyRefOrGetterWithArgument<
+    boolean | undefined,
+    Context
+  >;
 
   /**
    * If `true`, component won't be removed from dom immediately, but
@@ -42,16 +58,17 @@ type UseModalLayoutChildApiInit = {
  *    `close` and `cancel` events;
  */
 export function useModalLayoutChildApi(init: UseModalLayoutChildApiInit) {
+  // eslint-disable-next-line ts/no-non-null-assertion
+  const context = inject(ModalLayoutChildContextKey)!;
   const rootElement = useCurrentElement();
-  const isBodyScrollLocked = useBodyScrollLock(toValue(init.lockScroll));
+  const isBodyScrollLocked = useBodyScrollLock(
+    toValueWithArgument(init.lockScroll, context),
+  );
 
   const closePromise =
     // eslint-disable-next-line ts/no-invalid-void-type -- no here
     init.defferClose ? Promise.withResolvers<void>() : undefined;
   let isClosingOrClosed = false;
-
-  // eslint-disable-next-line ts/no-non-null-assertion
-  const context = inject(ModalLayoutChildContextKey)!;
 
   const onClose = (action: ModalDismissAction) => {
     const element = getRootHtmlElement(rootElement.value);
@@ -78,7 +95,7 @@ export function useModalLayoutChildApi(init: UseModalLayoutChildApiInit) {
   };
 
   useCloseWatcher({
-    enabled: context.active,
+    enabled: () => toValueWithArgument(init.active, context),
     abusive: true,
     onClose: () =>
       void onClose({
@@ -103,7 +120,7 @@ export function useModalLayoutChildApi(init: UseModalLayoutChildApiInit) {
   );
 
   watch(
-    () => toValue(init.lockScroll),
+    () => toValueWithArgument(init.lockScroll, context),
     (it = false) => {
       if (isClosingOrClosed) return;
       isBodyScrollLocked.value = it;

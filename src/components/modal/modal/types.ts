@@ -1,9 +1,9 @@
 import type {
-  ModalDismissActionIntent,
-  ModalDismissSourceDescription,
+  ModalDismissAction,
+  ModalDismissSource,
 } from '../modal-layout/types';
 
-export type Props = {
+export interface Props {
   // Why not use always scrollable behavior by default? `overflow: auto` clips any content that
   //  extends beyond the bounds of the container, which not always desireable behavior
   /**
@@ -25,13 +25,13 @@ export type Props = {
    * @defaultValue `small`
    */
   size?: 'small' | 'large';
-};
+}
 
-export type Slots = {
+export interface Slots {
   default: (props: {
     dismiss: (
-      intent: ModalDismissActionIntent,
-      description?: ModalDismissSourceDescription,
+      intent: ModalDismissAction.Intent,
+      description?: ModalDismissSource.Description,
     ) => void;
   }) => unknown;
-};
+}

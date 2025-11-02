@@ -16,7 +16,6 @@ const CLOSING_EASING = 'cubic-bezier(0.3, 0, 0.4, 1)';
 const BACKDROP_NATURAL_OPACITY = 1;
 
 interface Props {
-  active: boolean;
   dismissed: boolean;
   preopened: boolean;
   detent: 'auto' | 'expanded';
@@ -97,7 +96,7 @@ watchOnce(
 </script>
 
 <template>
-  <div :class="$style.root" :inert="!active">
+  <div :class="$style.root">
     <div
       :class="$style.backdrop"
       :style="backdropStyle"
@@ -118,7 +117,7 @@ watchOnce(
   </div>
 </template>
 
-<style lang="postcss" module>
+<style module>
 .root {
   position: fixed;
   display: flex;
@@ -146,7 +145,7 @@ watchOnce(
   display: flex;
   width: 100vw;
   max-height: calc(
-    100% - max(var(--safe-area-inset-block-start), var(--modal-margin-mobile))
+    100% - max(env(safe-area-inset-top), var(--modal-margin-mobile))
   ); /* `100%` here should act same as `100dvh` */
 
   flex: 0 0 auto;
@@ -160,7 +159,7 @@ watchOnce(
   box-shadow: 0 calc(v-bind(modalHeight) * 1px - var(--rounding-modal-m)) 0
     var(--modal-color-bg);
   contain: layout; /* Not necessary, but PERFORMANCE!!! */
-  padding-block-end: var(--safe-area-inset-block-end);
+  padding-block-end: env(safe-area-inset-bottom);
   transition-property: transform;
   will-change: transform;
 

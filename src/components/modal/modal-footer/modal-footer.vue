@@ -3,7 +3,12 @@ interface Props {
   sticky?: boolean;
 }
 
+interface Slots {
+  default: () => unknown;
+}
+
 defineProps<Props>();
+defineSlots<Slots>();
 </script>
 
 <template>
@@ -12,14 +17,14 @@ defineProps<Props>();
   </div>
 </template>
 
-<style lang="postcss" module>
+<style module>
 .root {
   --padding: var(--modal-padding-modal-mobile);
 
   display: flex;
   flex-direction: column;
   background-color: var(--modal-color-bg);
-  padding-block: var(--padding) max(var(--padding), var(--safe-area-inset-block-end));
+  padding-block: var(--padding) max(var(--padding), env(safe-area-inset-bottom));
   padding-inline: var(--padding);
 
   @media (--desktop-small) {

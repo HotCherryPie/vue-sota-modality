@@ -1,15 +1,15 @@
 import { onScopeDispose, toValue, watchEffect } from 'vue';
-import type { MaybeRefOrGetter } from 'vue';
 
 import { cloneEvent } from './common';
 import { CloseWatcher } from './polyfills/close-watcher';
 import type { CloseWatcherEventMap } from './polyfills/close-watcher';
+import type { MaybeReadonlyRefOrGetter } from './types';
 
 interface Options {
   /**
    * @default true
    */
-  enabled?: MaybeRefOrGetter<boolean | undefined>;
+  enabled?: MaybeReadonlyRefOrGetter<boolean | undefined>;
 
   onClose?: ((event: CloseWatcherEventMap['close']) => void) | undefined;
   onCancel?: ((event: CloseWatcherEventMap['cancel']) => void) | undefined;
@@ -44,7 +44,6 @@ export const useCloseWatcher = (options: Options) => {
 
     if (options.abusive && event.defaultPrevented) {
       watcher?.destroy();
-      watcher = new CloseWatcher();
       init();
     }
   };
@@ -56,12 +55,8 @@ export const useCloseWatcher = (options: Options) => {
   };
 
   watchEffect(() => {
-    // eslint-disable-next-line unicorn/no-negated-condition
-    if (toValue(options.enabled) !== false) {
-      init();
-    } else {
-      watcher?.destroy();
-    }
+    if (toValue(options.enabled) === true) init();
+    else watcher?.destroy();
   });
 
   onScopeDispose(() => void watcher?.destroy());

@@ -41,10 +41,11 @@ const ModalComponent = computed(() =>
   isMobile.value ? MobileModal : DesktopModal,
 );
 
-const { isDismissed, active, requestClose, commitClosedState } =
+const { isDismissed, stackIndex, requestClose, commitClosedState } =
   useModalLayoutChildApi({
     lockScroll: true,
     defferClose: true,
+    active: (it) => it.stackIndex.value === 0,
   });
 
 defineExpose({
@@ -58,10 +59,9 @@ defineExpose({
 <!-- eslint-disable vue/v-on-handler-style -->
 <template>
   <ModalComponent
+    :inert="stackIndex !== 0"
     :scrollable
     :detent
-    :noOverscroll="true"
-    :active
     :size
     :dismissed="isDismissed"
     :preopened="isModalMountedAndRendered"

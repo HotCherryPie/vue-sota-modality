@@ -28,7 +28,9 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
   const isSimilarModalAlreadyOpened = (modalComponent: Component) =>
     getModalForComponent(modalComponent) !== undefined;
   const isThisExactModalOpened = (key: string) =>
-    modals.values().some((it) => it.key === key);
+    // TODO: remove `Iterator.from()` after fix
+    //  https://github.com/vuejs/core/issues/12615
+    Iterator.from(modals.values()).some((it) => it.key === key);
 
   const openModal = (
     modalComponent: Component,

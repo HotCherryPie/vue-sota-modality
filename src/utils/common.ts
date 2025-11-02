@@ -1,6 +1,10 @@
 // eslint-disable-next-line unicorn/no-null -- it's fine
 export const isNil = (it: unknown): it is undefined | null => it == null;
 
+// eslint-disable-next-line ts/no-unsafe-function-type -- it's fine
+export const isFunction = (value: unknown): value is Function =>
+  typeof value === 'function';
+
 export const noop = () => {};
 
 export const cloneEvent = <const T extends Event>(

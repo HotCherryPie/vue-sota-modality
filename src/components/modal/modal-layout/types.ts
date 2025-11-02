@@ -104,7 +104,11 @@ export interface ModalLayoutChildEmits<TValue = never> {
 }
 
 export type ModalLayoutChildProps<TData = never, TValue = never> = {
-  active: boolean;
+  /**
+   * `undefined` if modal dismissed, number otherwise.
+   * TODO: rename to `stackActiveIndex`
+   */
+  stackIndex: number;
   data: TData;
   requestedDismissAction: ModalDismissAction | undefined;
   modelValue: TValue;

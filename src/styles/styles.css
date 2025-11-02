@@ -24,6 +24,7 @@
   --color-background-base-alfa-scrim: rgba(0, 0, 0, 0.2);
 
   --modal-color-bg: #fff;
+  --modal-margin-mobile: 24px;
   --modal-padding-modal-mobile: var(--spacing-16);
   --modal-padding-modal-desktop: var(--spacing-20);
   --modal-padding-modal-header-bottom-mobile: var(--spacing-12);

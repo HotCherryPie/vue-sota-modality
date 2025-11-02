@@ -37,14 +37,25 @@ state.onDismiss(
     }),
 );
 
-// Modal is active if it is first non-dismissed from right
-const isModalActive = (index: number) =>
-  index
+// Stack index exist only for active modals.
+const getStackIndex = (index: number) => {
   // TODO: remove `Iterator.from()` after fix
   //  https://github.com/vuejs/core/issues/12615
-  === Iterator.from(state.modals.values())
-    .toArray()
-    .findLastIndex((it) => !it.isDismissed.value);
+  const modals = Iterator.from(state.modals.values()).toArray();
+
+  // eslint-disable-next-line ts/no-non-null-assertion -- guaranteed here
+  const modal = modals.at(index)!;
+  // eslint-disable-next-line unicorn/no-useless-undefined
+  if (modal.isDismissed.value) return undefined;
+
+  let stackIndex = 0;
+  for (const it of modals.toReversed()) {
+    if (it === modal) break;
+    stackIndex += it.isDismissed.value ? 0 : 1;
+  }
+
+  return stackIndex;
+};
 
 const handleClose = (
   component: Component,
@@ -114,12 +125,12 @@ const handleModalUnmounted = (
       v-for="([component, descriptor], index) of state.modals"
       :key="component"
     >
-      <ModalLayoutChildContext :descriptor :active="isModalActive(index)">
+      <ModalLayoutChildContext :descriptor :stackIndex="getStackIndex(index)">
         <Suspense>
           <component
             :is="component"
-            :active="isModalActive(index)"
             :data="descriptor.data"
+            :stackIndex="getStackIndex(index)"
             :modelValue="descriptor.value.value"
             :requestedDismissAction="descriptor.requestedDismissAction.value"
             @update:modelValue="descriptor.value.value = $event"

@@ -8,11 +8,10 @@ import type {
   ModalDismissSource,
 } from '../modal-layout/types';
 
-const OPEN_DURATION = 300;
-const CLOSE_DURATION = 200;
+const OPEN_DURATION = 1000; // 300
+const CLOSE_DURATION = 2000; // 200
 
 interface Props {
-  active: boolean;
   dismissed: boolean;
   preopened: boolean;
   detent: 'auto' | 'expanded';
@@ -74,7 +73,7 @@ watchOnce(
 </script>
 
 <template>
-  <div :class="$style.root" :inert="!active">
+  <div :class="$style.root">
     <div
       :class="[$style.backdrop, isOpen && $style.open]"
       @click="$emit('dismiss', 'cancel', 'backdrop')"
@@ -95,7 +94,7 @@ watchOnce(
   </div>
 </template>
 
-<style lang="postcss" module>
+<style module>
 .root {
   position: fixed;
   display: flex;
@@ -146,7 +145,6 @@ watchOnce(
     @add-mixin hide-scroll;
 
     overflow: hidden auto;
-    overscroll-behavior: contain;
   }
 
   &.detent-auto {

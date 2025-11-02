@@ -3,26 +3,26 @@ import { defineComponent, provide, toRef } from 'vue';
 
 import type { ModalViewDescriptor } from './types';
 
-type Data = ModalViewDescriptor & {
-  active: Readonly<Ref<boolean>>;
-};
+interface Data extends ModalViewDescriptor {
+  stackIndex: Readonly<Ref<number | undefined>>;
+}
 
 export const ModalLayoutChildContextKey: InjectionKey<Data> = Symbol('');
 
 export const ModalLayoutChildContext = defineComponent<{
   descriptor: ModalViewDescriptor;
-  active: boolean;
+  stackIndex: number | undefined;
 }>(
   (props, { slots }) => {
     // Since we don't care about changes in descriptor, there is no need to pass reactive value
     provide(ModalLayoutChildContextKey, {
       ...props.descriptor,
-      active: toRef(() => props.active),
+      stackIndex: toRef(() => props.stackIndex),
     });
 
     return () => slots['default']?.();
   },
   {
-    props: ['descriptor', 'active'],
+    props: ['descriptor', 'stackIndex'],
   },
 );
