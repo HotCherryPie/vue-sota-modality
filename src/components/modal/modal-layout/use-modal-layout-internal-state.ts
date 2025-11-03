@@ -33,12 +33,12 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
     Iterator.from(modals.values()).some((it) => it.key === key);
 
   const openModal = (
-    modalComponent: Component,
+    component: Component,
     key: string,
     data: unknown,
     value: Ref,
   ) => {
-    if (isSimilarModalAlreadyOpened(modalComponent)) {
+    if (isSimilarModalAlreadyOpened(component)) {
       if (import.meta.env.DEV) console.warn('Similar modal is already opened!');
       return;
     }
@@ -55,8 +55,8 @@ export const useModalLayoutInternalState = createSharedComposable(() => {
       dismissedAt: undefined,
     };
 
-    modals.set(modalComponent, descriptor);
-    void openEvent.trigger({ component: modalComponent, descriptor });
+    modals.set(component, descriptor);
+    void openEvent.trigger({ component: component, descriptor });
 
     return resolutionPromise.promise;
   };
