@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Demo1 from './views/demo.1/index.vue';
+import Demo2 from './views/demo.2/index.vue';
 </script>
 
 <template>
-  <Demo1 />
+  <Demo2 />
 </template>

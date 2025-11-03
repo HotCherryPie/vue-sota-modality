@@ -1,0 +1,24 @@
+import { inject } from 'vue';
+
+import { INTERNAL_STATE_INJECTION_KEY } from './modality-layout';
+import type { Types } from './modality-layout';
+import { MODALITY_LAYOUT_CHILD_CONTEXT_KEY } from './modality-layout-child-context';
+
+export const useModalityLayoutChildApi = () => {
+  const state = inject(INTERNAL_STATE_INJECTION_KEY);
+  const context = inject(MODALITY_LAYOUT_CHILD_CONTEXT_KEY);
+
+  if (context === undefined || state === undefined) return;
+
+  // TODO: emit @close?
+  const dismiss = (
+    action: Types.Child.DismissAction,
+    promise?: Promise<unknown>,
+  ) => void state.dismissChild(context.descriptor.key, action, promise);
+
+  // TODO: emit @cancel?
+  const requestDismiss = (action: Types.Child.DismissAction) =>
+    void state.requestChildDismiss(context.descriptor.key, action);
+
+  return { context, dismiss, requestDismiss };
+};

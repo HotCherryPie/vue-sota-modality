@@ -1,5 +1,5 @@
 import type { ExtractStrict, SetNonNullable } from 'type-fest';
-import { provide, shallowReactive } from 'vue';
+import { shallowReactive } from 'vue';
 import type { Component, InjectionKey, Ref, ShallowReactive } from 'vue';
 
 import type { PosixTimestampInMilliseconds } from '../../../utils';
@@ -86,6 +86,7 @@ export declare namespace Types {
       value: Ref<TValue>;
 
       /**
+       * TODO: use only `.dismissedAt`
        * Whether child was dismissed, and now at closing state.
        */
       isDismissed: boolean;
@@ -112,12 +113,21 @@ export declare namespace Types {
       TValue = never,
     > = SetNonNullable<
       Child.Descriptor<TData, TValue>,
-      'dismissedAt' | 'isDismissed' | 'requestedDismissAction'
+      'dismissedAt' | 'requestedDismissAction'
     > & {
       isDismissed: true;
     };
 
-    export type Props<TData = never, TValue = never> = {
+    export interface Context {
+      descriptor: Descriptor<unknown, unknown>;
+      stackIndex: Readonly<Ref<number | undefined>>;
+    }
+
+    // eslint-disable-next-line ts/no-explicit-any
+    export type InferValueType<T> = T extends Child<any, infer F> ? F : never;
+    export type InferDataType<T> = T extends Child<infer F> ? F : never;
+
+    export interface Props<TData = never, TValue = never> {
       /**
        * `undefined` if child dismissed, number otherwise.
        * TODO: rename to `stackActiveIndex`
@@ -126,7 +136,7 @@ export declare namespace Types {
       data: TData;
       requestedDismissAction: DismissAction | undefined;
       modelValue: TValue;
-    };
+    }
 
     export interface Emits<TValue = never> {
       'update:modelValue': [value: TValue];
@@ -146,29 +156,41 @@ export declare namespace Types {
   >;
   /* eslint-enable ts/no-explicit-any */
 
+  export namespace Props {
+    // eslint-disable-next-line ts/no-empty-object-type
+    export interface ExternalState extends InternalState {}
+  }
+
+  export interface Props {
+    /**
+     * WARN: Not reactive! Can only be passed at first mount.
+     */
+    state?: Props.ExternalState | undefined;
+  }
+
   export namespace Emits {
-    export interface ModalOpenEvent {
+    export interface ChildOpenEvent {
       descriptor: Child.Descriptor<unknown, unknown>;
 
       /* performance.now*() if .open() call */
       time: number;
     }
 
-    export interface ModalDismissEvent {
+    export interface ChildDismissEvent {
       descriptor: Types.Child.DescriptorAfterDismiss<unknown, unknown>;
 
       /* performance.now*() if .dismiss() call */
       time: number;
     }
 
-    export interface ModalMountedEvent {
+    export interface ChildMountedEvent {
       descriptor: Child.Descriptor<unknown, unknown>;
 
       /** Time in milliseconds between mount and `open()` call */
       wait: number;
     }
 
-    export interface ModalUnmountedEvent {
+    export interface ChildUnmountedEvent {
       descriptor: Child.Descriptor<unknown, unknown>;
 
       /** Time in milliseconds between `dismiss()` call and unmount */
@@ -177,13 +199,17 @@ export declare namespace Types {
   }
 
   export interface Emits {
-    modalOpen: [event: Emits.ModalOpenEvent];
-    modalDismiss: [event: Emits.ModalDismissEvent];
-    modalMounted: [event: Emits.ModalMountedEvent];
-    modalUnmounted: [event: Emits.ModalUnmountedEvent];
+    modalOpen: [event: Emits.ChildOpenEvent];
+    modalDismiss: [event: Emits.ChildDismissEvent];
+    modalMounted: [event: Emits.ChildMountedEvent];
+    modalUnmounted: [event: Emits.ChildUnmountedEvent];
     presenceChange: [
       state: { someChildAreShown: boolean; someChildAreActive: boolean },
     ];
+  }
+
+  export interface Slots {
+    default: () => unknown;
   }
 }
 
@@ -196,10 +222,10 @@ export interface InternalState {
   readonly isOpen: (key: Types.Child.Descriptor.Key) => boolean;
   readonly isOpenSimilar: (component: Component) => boolean;
 
-  getChildByKey: (
+  readonly getChildByKey: (
     key: Types.Child.Descriptor.Key,
   ) => Types.Child.Descriptor<unknown, unknown> | undefined;
-  getChildrenByComponent: (
+  readonly getChildrenByComponent: (
     component: Component,
   ) => Types.Child.Descriptor<unknown, unknown>[];
 
@@ -209,28 +235,34 @@ export interface InternalState {
     data: unknown,
     value: Ref<TValue>,
   ) => Promise<Types.Child.Resolution<TValue>> | undefined;
-  readonly callForChildDismiss: (
+
+  readonly requestChildDismiss: (
     key: Types.Child.Descriptor.Key,
     action: Types.Child.DismissAction,
   ) => void;
+
   readonly dismissChild: (
     key: Types.Child.Descriptor.Key,
-    promise: Promise<unknown>,
     action: Types.Child.DismissAction,
+    promise?: Promise<unknown>,
   ) => void;
 }
 
-export interface UseInternalStateInit {
-  onOpen: (descriptor: Types.Child.Descriptor<unknown, unknown>) => void;
-  onDismiss: (
-    descriptor: Types.Child.DescriptorAfterDismiss<unknown, unknown>,
-  ) => void;
+export interface CreateStateInit {
+  onOpen?:
+    | ((descriptor: Types.Child.Descriptor<unknown, unknown>) => void)
+    | undefined;
+  onDismiss?:
+    | ((
+        descriptor: Types.Child.DescriptorAfterDismiss<unknown, unknown>,
+      ) => void)
+    | undefined;
 }
 
 export const INTERNAL_STATE_INJECTION_KEY: InjectionKey<InternalState> =
   Symbol('');
 
-export const useInternalState = (init: UseInternalStateInit): InternalState => {
+export const createState = (init: CreateStateInit = {}): InternalState => {
   // We should not care about any possible changes in descriptors. Also `reactive`
   //  unwraps refs, but at least `requestedDismissAction` should be preserved as is.
   const children = shallowReactive(
@@ -259,6 +291,7 @@ export const useInternalState = (init: UseInternalStateInit): InternalState => {
 
   const openChild = <TData = unknown, TValue = unknown>(
     component: Types.Child<TData, TValue>,
+    // TODO: make key optional here. If `undefined` then we generate key here.
     key: Types.Child.Descriptor.Key,
     data: NoInfer<TData>,
     value: Ref<NoInfer<TValue>>,
@@ -289,12 +322,12 @@ export const useInternalState = (init: UseInternalStateInit): InternalState => {
 
     state.children.set(key, descriptor);
 
-    init.onOpen(descriptor);
+    init.onOpen?.(descriptor);
 
     return resolutionPromise.promise;
   };
 
-  const callForChildDismiss = (
+  const requestChildDismiss = (
     key: Types.Child.Descriptor.Key,
     action: Types.Child.DismissAction,
   ) => {
@@ -319,8 +352,8 @@ export const useInternalState = (init: UseInternalStateInit): InternalState => {
 
   const dismissChild = (
     key: Types.Child.Descriptor.Key,
-    promise: Promise<unknown>,
     action: Types.Child.DismissAction,
+    promise: Promise<unknown> = Promise.resolve(),
   ) => {
     const descriptor = getChildByKey(key);
 
@@ -349,7 +382,7 @@ export const useInternalState = (init: UseInternalStateInit): InternalState => {
       action,
     });
 
-    init.onDismiss(descriptorAfterDismiss);
+    init.onDismiss?.(descriptorAfterDismiss);
 
     void promise.then(() => void children.delete(key));
   };
@@ -361,11 +394,9 @@ export const useInternalState = (init: UseInternalStateInit): InternalState => {
     getChildByKey,
     getChildrenByComponent,
     openChild,
-    callForChildDismiss,
+    requestChildDismiss,
     dismissChild,
   } as const satisfies InternalState;
-
-  provide(INTERNAL_STATE_INJECTION_KEY, state);
 
   return state;
 };

@@ -170,7 +170,7 @@ function handleClick() {
 
 Благодаря тому, что в компоненте `my-complex-modal.vue` мы с помощью `ModalLayoutChildProps` `ModalLayoutChildEmits` указали типы для наших **_modal value_** и **_modal data_**, мы получаем типизацию для свойства `value` и аргумента в `open`
 
-![usage example](https://gitlab.rip/frontend/1win-main/uploads/064e85631c3264f7283c0ac5d2eb51e3/3.png)
+![usage example](/uploads/064e85631c3264f7283c0ac5d2eb51e3/3.png)
 
 ## Поддержка
 
@@ -192,7 +192,7 @@ function handleClick() {
 
 #### Анатомия мобильного модального окна
 
-![modal anatomy](https://gitlab.rip/frontend/1win-main/uploads/f9389ad37fa21c88973f5cd66851b366/image.png)
+![modal anatomy](/uploads/f9389ad37fa21c88973f5cd66851b366/image.png)
 
 #### Нюансы реализации
 

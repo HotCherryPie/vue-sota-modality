@@ -1,23 +1,18 @@
 import { tryOnScopeDispose, watchOnce } from '@vueuse/core';
 import type { If, IsNever } from 'type-fest';
-import type { Component, MaybeRefOrGetter } from 'vue';
 import { computed, toRef, watch } from 'vue';
+import type { Ref } from 'vue';
 
-import { useCurrentUrl } from '../../../utils';
-
-import type {
-  InferDataTypeFromModalComponent,
-  InferValueTypeFromModalComponent,
-  ModalDismissAction,
-} from './modal-layout';
-import { useModalLayout } from './modal-layout';
-import type { ModalDismissSource } from './modal-layout/types';
+import { useModalityLayoutApi } from '../../ui-kit';
+import type { ModalityLayout } from '../../ui-kit';
+import { useCurrentUrl } from '../../utils';
 
 type IfNever<T, TYes, TNo> = If<IsNever<T>, TYes, TNo>;
 type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
 
 export interface UseModalOptions<TValue> {
-  value?: MaybeRefOrGetter<TValue>;
+  // MaybeRefOrGetter doesn't actually make sense here.
+  value?: Ref<TValue>;
 
   /**
    * @defaultValue `true`
@@ -33,48 +28,43 @@ export interface UseModalOptions<TValue> {
    * @defaultValue `true`
    */
   dismissOnRouteChange?: boolean;
-
-  /**
-   * @defaultValue `true`
-   */
-  interruptFullscreenOnOpen?: boolean;
 }
 
-export const useModal = <TComponent extends Component>(
-  ModalComponent: TComponent,
-  {
+export const useModal = <TComponent extends ModalityLayout.Types.Child>(
+  component: TComponent,
+  options: UseModalOptions<
+    ModalityLayout.Types.Child.InferValueType<TComponent>
+  > = {},
+) => {
+  const {
     value,
     dismissOnScopeDispose = true,
     dismissOnValueChange = true,
     dismissOnRouteChange = true,
-    interruptFullscreenOnOpen = true,
-  }: UseModalOptions<InferValueTypeFromModalComponent<TComponent>> = {},
-) => {
+  } = options;
+
   // eslint-disable-next-line sonar/pseudo-random -- it's ok
   const usageKey = Math.random().toString();
-
-  type ModalValue = InferValueTypeFromModalComponent<TComponent>;
-  type ModalData = InferDataTypeFromModalComponent<TComponent>;
-  type OpenFunctionArguments = IfNever<
-    ModalData,
-    [],
-    IfUndefined<ModalData, [data?: ModalData], [data: ModalData]>
-  >;
-
-  const location = useCurrentUrl();
-  const { openModal, dismissModal, isModalOpened, isModalOpenedExact } =
-    useModalLayout();
   const valueRef = toRef(value);
 
+  const api = useModalityLayoutApi();
+  const location = useCurrentUrl();
+
+  if (api === undefined)
+    throw new Error('<ModalityLayout> is missing in current scope!');
+
+  const isOpened = computed(() => api.isOpen(usageKey));
+  const isOpenedSimilar = computed(() => api.isOpenSimilar(component));
+
   // For internal usage.
-  const dismiss_ = (action: ModalDismissAction) => {
-    dismissModal(ModalComponent, action);
+  const dismiss_ = (action: ModalityLayout.Types.Child.DismissAction) => {
+    api.dismissChild(usageKey, action);
   };
 
   // For public usage.
   const dismiss = (
-    intent: ModalDismissAction.Intent,
-    description?: ModalDismissSource.Description,
+    intent: ModalityLayout.Types.Child.DismissAction.Intent,
+    description?: ModalityLayout.Types.Child.DismissSource.Description,
   ) => {
     dismiss_({
       intent,
@@ -82,11 +72,14 @@ export const useModal = <TComponent extends Component>(
     });
   };
 
-  const open = (...[data]: OpenFunctionArguments) => {
-    if (interruptFullscreenOnOpen && document.fullscreenElement)
-      // eslint-disable-next-line ts/no-unnecessary-condition -- for old browsers
-      void document.exitFullscreen?.();
+  type ModalData = ModalityLayout.Types.Child.InferValueType<TComponent>;
+  type OpenFunctionArguments = IfNever<
+    ModalData,
+    [],
+    IfUndefined<ModalData, [data?: ModalData], [data: ModalData]>
+  >;
 
+  const open = (...[data]: OpenFunctionArguments) => {
     if (dismissOnValueChange) {
       watchOnce(
         valueRef,
@@ -102,15 +95,12 @@ export const useModal = <TComponent extends Component>(
       );
     }
 
-    return openModal<ModalValue>(ModalComponent, usageKey, data, valueRef);
+    return api.openChild(component, usageKey, data, valueRef);
   };
-
-  const isOpened = computed(() => isModalOpened(ModalComponent));
-  const isOpenedExact = computed(() => isModalOpenedExact(usageKey));
 
   if (dismissOnScopeDispose)
     tryOnScopeDispose(() => {
-      if (isOpenedExact.value)
+      if (isOpened.value)
         dismiss_({
           intent: 'cancel',
           source: {
@@ -121,11 +111,11 @@ export const useModal = <TComponent extends Component>(
         });
     });
 
-  if (dismissOnRouteChange) {
+  if (dismissOnRouteChange)
     watch(
       () => location.value.pathname,
       () => {
-        if (isOpenedExact.value)
+        if (isOpened.value)
           dismiss_({
             intent: 'cancel',
             source: {
@@ -136,11 +126,11 @@ export const useModal = <TComponent extends Component>(
           });
       },
     );
-  }
 
   return {
     open,
     dismiss,
     isOpened,
-  } as const;
+    isOpenedSimilar,
+  };
 };

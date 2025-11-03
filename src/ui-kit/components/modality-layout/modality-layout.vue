@@ -1,24 +1,32 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { inject, provide, watch, watchEffect } from 'vue';
 
-import { useInternalState } from './modality-layout';
+import { INTERNAL_STATE_INJECTION_KEY, createState } from './modality-layout';
 import type { Types } from './modality-layout';
-import { ModalLayoutChildContext } from './modality-layout-child-context';
+import { ModalityLayoutChildContext } from './modality-layout-child-context';
 
+const props = defineProps<Types.Props>();
 const emit = defineEmits<Types.Emits>();
+defineSlots<Types.Slots>();
 
-const state = useInternalState({
-  onDismiss: (descriptor) =>
-    void emit('modalDismiss', {
-      descriptor,
-      time: descriptor.dismissedAt,
-    }),
-  onOpen: (descriptor) =>
-    void emit('modalOpen', {
-      descriptor,
-      time: descriptor.calledAt,
-    }),
-});
+const internalState =
+  props.state ?? inject(INTERNAL_STATE_INJECTION_KEY) ?? createState();
+
+provide(INTERNAL_STATE_INJECTION_KEY, internalState);
+
+// TODO: watchSync & call on isDismissed change
+// onDismiss: (descriptor) =>
+//     void emit('modalDismiss', {
+//       descriptor,
+//       time: descriptor.dismissedAt,
+//     }),
+
+// TODO: watchSync & call on array change
+// onOpen: (descriptor) =>
+//   void emit('modalOpen', {
+//     descriptor,
+//     time: descriptor.calledAt,
+//   }),
 
 const handleChildMount = (
   descriptor: Types.Child.Descriptor<unknown, unknown>,
@@ -46,10 +54,12 @@ const handleChildUnmounted = (
 watch(
   () =>
     [
-      state.children.size > 0,
+      internalState.children.size > 0,
       // TODO: remove `Iterator.from()` after fix
       //  https://github.com/vuejs/core/issues/12615
-      Iterator.from(state.children.values()).some((it) => !it.isDismissed),
+      Iterator.from(internalState.children.values()).some(
+        (it) => !it.isDismissed,
+      ),
     ] as const,
   ([someChildAreShown, someChildAreActive]) => {
     emit('presenceChange', { someChildAreShown, someChildAreActive });
@@ -60,7 +70,7 @@ watch(
 const getStackIndex = (index: number) => {
   // TODO: remove `Iterator.from()` after fix
   //  https://github.com/vuejs/core/issues/12615
-  const child = Iterator.from(state.children.values()).toArray();
+  const child = Iterator.from(internalState.children.values()).toArray();
 
   // eslint-disable-next-line ts/no-non-null-assertion -- guaranteed here
   const modal = child.at(index)!;
@@ -75,12 +85,21 @@ const getStackIndex = (index: number) => {
 
   return stackIndex;
 };
+
+watchEffect(() => {
+  console.log('internalState.children', [...internalState.children.values()]);
+});
 </script>
 
 <template>
-  <div>
-    <template v-for="([key, descriptor], index) of state.children" :key>
-      <ModalLayoutChildContext :descriptor :stackIndex="getStackIndex(index)">
+  <slot />
+
+  <div :class="$attrs['class']">
+    <template v-for="([key, descriptor], index) of internalState.children" :key>
+      <ModalityLayoutChildContext
+        :descriptor
+        :stackIndex="getStackIndex(index)"
+      >
         <Suspense>
           <component
             :is="descriptor.component"
@@ -93,7 +112,7 @@ const getStackIndex = (index: number) => {
             @vue:beforeUnmount="handleChildUnmounted(descriptor)"
           />
         </Suspense>
-      </ModalLayoutChildContext>
+      </ModalityLayoutChildContext>
     </template>
   </div>
 </template>
