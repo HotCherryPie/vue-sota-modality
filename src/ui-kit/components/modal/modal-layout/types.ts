@@ -4,7 +4,7 @@ import type { Component, Ref } from 'vue';
 import type {
   CustomComponentProps,
   PosixTimestampInMilliseconds,
-} from '../../../utils';
+} from '../../../../utils';
 
 import type { RichCloseEvent } from './events';
 

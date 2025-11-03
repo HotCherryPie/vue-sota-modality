@@ -3,7 +3,7 @@ import type { If, IsNever } from 'type-fest';
 import type { Component, MaybeRefOrGetter } from 'vue';
 import { computed, toRef, watch } from 'vue';
 
-import { useCurrentUrl } from '../../utils';
+import { useCurrentUrl } from '../../../utils';
 
 import type {
   InferDataTypeFromModalComponent,

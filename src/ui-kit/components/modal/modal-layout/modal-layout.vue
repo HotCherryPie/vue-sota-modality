@@ -2,7 +2,7 @@
 import { watch } from 'vue';
 import type { Component } from 'vue';
 
-import { noop } from '../../../utils';
+import { noop } from '../../../../utils';
 
 import { RichCloseEvent } from './events';
 import { ModalLayoutChildContext } from './modal-layout-child-context';

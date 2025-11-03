@@ -7,11 +7,11 @@ import {
   toValueWithArgument,
   useBodyScrollLock,
   useCloseWatcher,
-} from '../../../utils';
+} from '../../../../utils';
 import type {
   InferInjectionKeyData,
   MaybeReadonlyRefOrGetterWithArgument,
-} from '../../../utils';
+} from '../../../../utils';
 
 import { RichCancelEvent, RichCloseEvent } from './events';
 import { ModalLayoutChildContextKey } from './modal-layout-child-context';

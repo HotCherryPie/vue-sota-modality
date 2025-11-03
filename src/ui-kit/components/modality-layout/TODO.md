@@ -1,0 +1,2 @@
+- Add support for native cancel/close events to `<ModalityLayout>`,
+- Define child components as just pure `Component`? All interactions should be context and native close/cancel events.

@@ -2,7 +2,7 @@
 import { useElementSize, watchOnce } from '@vueuse/core';
 import { computed, nextTick, reactive, useTemplateRef } from 'vue';
 
-import { useIsRendered } from '../../../utils';
+import { useIsRendered } from '../../../../utils';
 import type {
   ModalDismissAction,
   ModalDismissSource,

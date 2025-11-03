@@ -49,6 +49,7 @@ useIntersectionObserver(
       <div :class="$style.titleButtonBlock">
         <IconButton
           v-if="!title && titleButton"
+          type="button"
           @click="titleButton?.onClick()"
         >
           <component :is="titleButton.Icon" v-if="titleButton?.Icon" />
@@ -59,6 +60,7 @@ useIntersectionObserver(
         <IconButton
           v-for="(btn, index) of headerButtons"
           :key="index"
+          type="button"
           :class="$style.button"
           @click="btn.onClick()"
         >
@@ -75,6 +77,7 @@ useIntersectionObserver(
         >
           <IconButton
             v-if="isBackShown"
+            type="button"
             :class="$style.back"
             @click="$emit('back')"
           >
@@ -112,7 +115,7 @@ useIntersectionObserver(
             :class="$style.coverButtonStack"
           >
             <div :class="$style.coverButtonBackdrop" />
-            <IconButton inert size="m" variant="staticPrimary">
+            <IconButton type="button" inert size="m" variant="staticPrimary">
               <component :is="btn.Icon" />
             </IconButton>
           </div>
@@ -132,6 +135,7 @@ useIntersectionObserver(
     >
       <IconButton
         v-if="isBackShown"
+        type="button"
         :class="$style.back"
         @click="$emit('back')"
       >
@@ -158,6 +162,7 @@ useIntersectionObserver(
           </div>
           <IconButton
             v-if="title && titleButton"
+            type="button"
             @click="titleButton?.onClick()"
           >
             <component :is="titleButton.Icon" v-if="titleButton?.Icon" />

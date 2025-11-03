@@ -2,7 +2,7 @@
 import { useMediaQuery } from '@vueuse/core';
 import { computed } from 'vue';
 
-import { useIsRendered } from '../../../utils';
+import { useIsRendered } from '../../../../utils';
 import { useModalLayoutChildApi } from '../modal-layout';
 import type {
   ModalDismissAction,

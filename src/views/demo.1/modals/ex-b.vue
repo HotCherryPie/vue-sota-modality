@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Modal, useModal } from '../../components';
+import { Modal, useModal } from '../../../ui-kit';
 
 import ModalC from './ex-c.vue';
 

@@ -1,28 +1,7 @@
 <script setup lang="ts">
-import { shallowReactive } from 'vue';
-
-import { ModalLayout } from './components';
-import HelloWorld from './views/hello-world.vue';
-
-const state = shallowReactive({
-  someModalsShown: false,
-});
+import Demo1 from './views/demo.1/hello-world.vue';
 </script>
 
 <template>
-  <main :inert="state.someModalsShown">
-    <HelloWorld />
-  </main>
-
-  <ModalLayout
-    style="z-index: 9999"
-    @presenceChange="state.someModalsShown = $event"
-  />
+  <Demo1 />
 </template>
-
-<!-- eslint-disable vue/enforce-style-attribute -->
-<style>
-main {
-  display: contents;
-}
-</style>
