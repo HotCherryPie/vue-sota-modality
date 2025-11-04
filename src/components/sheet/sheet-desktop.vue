@@ -135,8 +135,7 @@ const backdropClickDismissAction: ModalityLayout.Types.Child.DismissAction = {
   }
 
   &.scrollable {
-    @add-mixin hide-scroll;
-
+    scrollbar-width: thin;
     overflow: hidden auto;
   }
 
