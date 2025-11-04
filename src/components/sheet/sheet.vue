@@ -24,8 +24,6 @@ const state = useModalExtras({
   lockScroll: true,
   defferClose: true,
 });
-
-console.log('>>> isSheetMountedAndRendered', isSheetMountedAndRendered.value);
 </script>
 
 <template>

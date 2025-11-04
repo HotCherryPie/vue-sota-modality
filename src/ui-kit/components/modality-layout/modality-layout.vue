@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, provide, watch, watchEffect } from 'vue';
+import { inject, provide, watch } from 'vue';
 
 import { INTERNAL_STATE_INJECTION_KEY, createState } from './modality-layout';
 import type { Types } from './modality-layout';
@@ -85,10 +85,6 @@ const getStackIndex = (index: number) => {
 
   return stackIndex;
 };
-
-watchEffect(() => {
-  console.log('internalState.children', [...internalState.children.values()]);
-});
 </script>
 
 <template>

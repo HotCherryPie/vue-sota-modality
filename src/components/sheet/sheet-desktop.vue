@@ -52,9 +52,9 @@ watchOnce(
   () => props.dismissed,
   async () => {
     await nextTick();
-    const a = modalRef.value?.getAnimations().map((it) => it.finished) ?? [];
-    console.log('>>> anim', a);
-    await Promise.all(a);
+    const animations =
+      modalRef.value?.getAnimations().map((it) => it.finished) ?? [];
+    await Promise.all(animations);
     emit('closed');
   },
 );
