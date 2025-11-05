@@ -49,16 +49,17 @@ const externalResolveDismissAction = {
   source: { origin: 'external', input: 'unknown', description: undefined },
 } satisfies ModalityLayout.Types.Child.DismissAction;
 
-type UseModalArguments<TData, TValue> =
-  undefined extends TValue ?
-    [
-      component: ModalityLayout.Types.Child<TData, TValue>,
-      options?: UseModalOptions<NoInfer<TValue>>,
-    ]
-  : [
-      component: ModalityLayout.Types.Child<TData, TValue>,
-      options: UseModalOptions<NoInfer<TValue>>,
-    ];
+type UseModalArguments<TData, TValue> = IfUndefined<
+  TValue,
+  [
+    component: ModalityLayout.Types.Child<TData, TValue>,
+    options?: UseModalOptions<NoInfer<TValue>>,
+  ],
+  [
+    component: ModalityLayout.Types.Child<TData, TValue>,
+    options: UseModalOptions<NoInfer<TValue>>,
+  ]
+>;
 
 export const useModal = <TData, TValue>(
   ...[component, options]: UseModalArguments<TData, TValue>

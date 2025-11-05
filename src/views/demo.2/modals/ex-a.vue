@@ -4,6 +4,8 @@ import { useModal } from '../../../hooks/modality';
 
 import ModalB from './ex-b.vue';
 
+defineModel<number | undefined>();
+
 const modal = useModal(ModalB);
 </script>
 
