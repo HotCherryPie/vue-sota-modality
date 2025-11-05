@@ -1,7 +1,7 @@
 import { tryOnScopeDispose, watchOnce } from '@vueuse/core';
 import type { If, IsNever } from 'type-fest';
-import { computed, toRef, watch } from 'vue';
-import type { Ref } from 'vue';
+import { computed, isRef, shallowRef, watch } from 'vue';
+import type { ShallowRef } from 'vue';
 
 import { useModalityLayoutApi } from '../../ui-kit';
 import type { ModalityLayout } from '../../ui-kit';
@@ -10,9 +10,15 @@ import { useCurrentUrl } from '../../utils';
 type IfNever<T, TYes, TNo> = If<IsNever<T>, TYes, TNo>;
 type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
 
-export interface UseModalOptions<TValue> {
+type UseModalOptionsValue<TValue> = IfUndefined<
+  TValue,
+  { value?: TValue | ShallowRef<TValue> },
+  { value: TValue | ShallowRef<TValue> }
+>;
+
+interface UseModalOptionsDefault {
   // MaybeRefOrGetter doesn't actually make sense here.
-  value?: Ref<TValue>;
+  // value: TValue | ShallowRef<TValue>;
 
   /**
    * @defaultValue `true`
@@ -30,6 +36,9 @@ export interface UseModalOptions<TValue> {
   dismissOnRouteChange?: boolean;
 }
 
+type UseModalOptions<TValue> = UseModalOptionsDefault
+  & UseModalOptionsValue<TValue>;
+
 const externalCancelDismissAction = {
   intent: 'cancel',
   source: { origin: 'external', input: 'unknown', description: undefined },
@@ -40,22 +49,31 @@ const externalResolveDismissAction = {
   source: { origin: 'external', input: 'unknown', description: undefined },
 } satisfies ModalityLayout.Types.Child.DismissAction;
 
-export const useModal = <TComponent extends ModalityLayout.Types.Child>(
-  component: TComponent,
-  options: UseModalOptions<
-    ModalityLayout.Types.Child.InferValueType<TComponent>
-  > = {},
+type UseModalArguments<TData, TValue> =
+  undefined extends TValue ?
+    [
+      component: ModalityLayout.Types.Child<TData, TValue>,
+      options?: UseModalOptions<NoInfer<TValue>>,
+    ]
+  : [
+      component: ModalityLayout.Types.Child<TData, TValue>,
+      options: UseModalOptions<NoInfer<TValue>>,
+    ];
+
+export const useModal = <TData, TValue>(
+  ...[component, options]: UseModalArguments<TData, TValue>
 ) => {
   const {
     value,
     dismissOnScopeDispose = true,
     dismissOnValueChange = true,
     dismissOnRouteChange = true,
-  } = options;
+  } = options ?? {};
 
-  // eslint-disable-next-line sonar/pseudo-random -- it's ok
-  const usageKey = Math.random().toString();
-  const valueRef = toRef(value);
+  let key: ModalityLayout.Types.Child.Descriptor.Key | undefined;
+  // eslint-disable-next-line ts/no-unsafe-type-assertion
+  const valueRef = (
+    isRef(value) ? value : shallowRef(value)) as ShallowRef<TValue>;
 
   const api = useModalityLayoutApi();
   const location = useCurrentUrl();
@@ -63,12 +81,12 @@ export const useModal = <TComponent extends ModalityLayout.Types.Child>(
   if (api === undefined)
     throw new Error('<ModalityLayout> is missing in current scope!');
 
-  const isOpened = computed(() => api.isOpen(usageKey));
+  const isOpened = computed(() => api.isOpen(key));
   const isOpenedSimilar = computed(() => api.isOpenSimilar(component));
 
   // For internal usage.
   const dismiss_ = (action: ModalityLayout.Types.Child.DismissAction) => {
-    if (isOpened.value) api.dismissChild(usageKey, action);
+    if (key !== undefined && isOpened.value) api.dismissChild(key, action);
   };
 
   // For public usage.
@@ -78,24 +96,47 @@ export const useModal = <TComponent extends ModalityLayout.Types.Child>(
       | ModalityLayout.Types.Child.DismissSource.Description
       | undefined,
   ) => {
-    api.dismissChild(usageKey, {
+    if (key === undefined) {
+      if (import.meta.env.DEV)
+        console.warn(
+          '[useModal] You try to dismiss child which is not open yet!',
+        );
+      return;
+    }
+
+    api.dismissChild(key, {
       intent,
       source: { origin: 'external', input: 'unknown', description },
     });
   };
 
-  type ModalData = ModalityLayout.Types.Child.InferValueType<TComponent>;
   type OpenFunctionArguments = IfNever<
-    ModalData,
+    TData,
     [],
-    IfUndefined<ModalData, [data?: ModalData], [data: ModalData]>
+    IfUndefined<TData, [data?: TData], [data: TData]>
   >;
 
   const open = (...[data]: OpenFunctionArguments) => {
+    if (api.isOpen(key)) {
+      if (import.meta.env.DEV)
+        console.warn('[useModal] This modal is already opened!');
+      return;
+    }
+
+    if (api.isOpenSimilar(component)) {
+      if (import.meta.env.DEV)
+        console.warn('[useModal] Similar modal is already opened!');
+      return;
+    }
+
     if (dismissOnValueChange)
       watchOnce(valueRef, () => void dismiss_(externalResolveDismissAction));
 
-    return api.openChild(component, usageKey, data, valueRef);
+    // eslint-disable-next-line ts/no-non-null-assertion
+    const handle = api.openChild(component, data!, valueRef);
+    key = handle?.key;
+
+    return handle?.resolutionPromise;
   };
 
   if (dismissOnScopeDispose)

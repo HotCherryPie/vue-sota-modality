@@ -1,6 +1,12 @@
 import type { ExtractStrict, SetNonNullable } from 'type-fest';
 import { shallowReactive } from 'vue';
-import type { Component, InjectionKey, Ref, ShallowReactive } from 'vue';
+import type {
+  Component,
+  InjectionKey,
+  Ref,
+  ShallowReactive,
+  ShallowRef,
+} from 'vue';
 
 import type { PosixTimestampInMilliseconds } from '../../../utils';
 
@@ -83,7 +89,7 @@ export declare namespace Types {
       /**
        * Value of the child. Usually used for child with selection ability.
        */
-      value: Ref<TValue>;
+      value: ShallowRef<TValue>;
 
       /**
        * TODO: use only `.dismissedAt`
@@ -213,28 +219,34 @@ export declare namespace Types {
   }
 }
 
+export namespace InternalState {
+  export interface OpenHandle<TValue> {
+    readonly key: Types.Child.Descriptor.Key;
+    readonly resolutionPromise: Promise<Types.Child.Resolution<TValue>>;
+  }
+}
+
 export interface InternalState {
   readonly children: ShallowReactive<
     // eslint-disable-next-line ts/no-explicit-any
     Map<Types.Child.Descriptor.Key, Types.Child.Descriptor<any, any>>
   >;
 
-  readonly isOpen: (key: Types.Child.Descriptor.Key) => boolean;
-  readonly isOpenSimilar: (component: Component) => boolean;
+  readonly isOpen: (key: Types.Child.Descriptor.Key | undefined) => boolean;
+  readonly isOpenSimilar: (component: Component | undefined) => boolean;
 
   readonly getChildByKey: (
-    key: Types.Child.Descriptor.Key,
+    key: Types.Child.Descriptor.Key | undefined,
   ) => Types.Child.Descriptor<unknown, unknown> | undefined;
   readonly getChildrenByComponent: (
-    component: Component,
+    component: Component | undefined,
   ) => Types.Child.Descriptor<unknown, unknown>[];
 
-  readonly openChild: <TValue = unknown>(
-    component: Component,
-    key: Types.Child.Descriptor.Key,
-    data: unknown,
-    value: Ref<TValue>,
-  ) => Promise<Types.Child.Resolution<TValue>> | undefined;
+  readonly openChild: <TData, TValue>(
+    component: Types.Child<TData, TValue>,
+    data: NoInfer<TData>,
+    value: ShallowRef<NoInfer<TValue>>,
+  ) => InternalState.OpenHandle<TValue> | undefined;
 
   readonly requestChildDismiss: (
     key: Types.Child.Descriptor.Key,
@@ -272,40 +284,53 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
     >(),
   );
 
-  const getChildByKey = (key: Types.Child.Descriptor.Key) => children.get(key);
+  const getChildByKey: InternalState['getChildByKey'] = (
+    key: Types.Child.Descriptor.Key | undefined,
+  ) => {
+    if (key === undefined) return;
 
-  const getChildrenByComponent = (component: Component) =>
+    return children.get(key);
+  };
+
+  const getChildrenByComponent: InternalState['getChildrenByComponent'] = (
+    component: Component | undefined,
+  ) => {
+    if (component === undefined) return [];
+
     // TODO: remove `Iterator.from()` after fix
     //  https://github.com/vuejs/core/issues/12615
-    Iterator.from(children.values())
+    return Iterator.from(children.values())
       .filter((it) => it.component === component)
       .toArray();
+  };
 
-  const isOpen = (key: Types.Child.Descriptor.Key) =>
-    getChildByKey(key) !== undefined;
+  const isOpen: InternalState['isOpen'] = (
+    key: Types.Child.Descriptor.Key | undefined,
+  ) => {
+    if (key === undefined) return false;
+    const child = getChildByKey(key);
+    return child !== undefined && !child.isDismissed;
+  };
 
-  const isOpenSimilar = (component: Component) =>
+  const isOpenSimilar: InternalState['isOpenSimilar'] = (
+    component: Component | undefined,
+  ) => {
+    if (component === undefined) return false;
+
     // TODO: remove `Iterator.from()` after fix
     //  https://github.com/vuejs/core/issues/12615
-    Iterator.from(children.values()).some((it) => it.component === component);
+    return Iterator.from(children.values()).some(
+      (it) => it.component === component && !it.isDismissed,
+    );
+  };
 
-  const openChild = <TData = unknown, TValue = unknown>(
+  const openChild: InternalState['openChild'] = <TData, TValue>(
     component: Types.Child<TData, TValue>,
-    // TODO: make key optional here. If `undefined` then we generate key here.
-    key: Types.Child.Descriptor.Key,
     data: NoInfer<TData>,
-    value: Ref<NoInfer<TValue>>,
-    allowSame: boolean = false,
+    value: ShallowRef<NoInfer<TValue>>,
   ) => {
-    if (isOpen(key)) {
-      if (import.meta.env.DEV) console.warn('This modal is already opened!');
-      return;
-    }
-
-    if (!allowSame && isOpenSimilar(component)) {
-      if (import.meta.env.DEV) console.warn('Similar modal is already opened!');
-      return;
-    }
+    // eslint-disable-next-line sonar/pseudo-random -- it's ok
+    const key = Math.random().toString();
 
     const resolutionPromise =
       Promise.withResolvers<Types.Child.Resolution<TValue>>();
@@ -329,10 +354,13 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
 
     init.onOpen?.(descriptor);
 
-    return resolutionPromise.promise;
+    return {
+      key,
+      resolutionPromise: resolutionPromise.promise,
+    } as const;
   };
 
-  const requestChildDismiss = (
+  const requestChildDismiss: InternalState['requestChildDismiss'] = (
     key: Types.Child.Descriptor.Key,
     action: Types.Child.DismissAction,
   ) => {
@@ -340,13 +368,17 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
 
     if (descriptor === undefined) {
       if (import.meta.env.DEV)
-        console.warn('You try to dismiss child which is not presented yet!');
+        console.warn(
+          '[ModalityLayout] You try to dismiss child which is not open yet!',
+        );
       return;
     }
 
     if (descriptor.isDismissed) {
       if (import.meta.env.DEV)
-        console.warn('You try to dismiss already dismissed child!');
+        console.warn(
+          '[ModalityLayout] You try to dismiss already dismissed child!',
+        );
       return;
     }
 
@@ -355,7 +387,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
     descriptor.requestedDismissAction = action;
   };
 
-  const dismissChild = (
+  const dismissChild: InternalState['dismissChild'] = (
     key: Types.Child.Descriptor.Key,
     action: Types.Child.DismissAction,
     promise: Promise<unknown> = Promise.resolve(),

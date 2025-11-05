@@ -91,7 +91,6 @@ const backdropClickDismissAction: ModalityLayout.Types.Child.DismissAction = {
 
 <style module>
 .root {
-  position: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
