@@ -89,15 +89,12 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
       }),
   });
 
-  watch(
-    () => childApi.context.descriptor.requestedDismissAction,
-
-    (it) => {
-      // We use `onClose` here, because close requests from outside
-      //  should be inevitable.
-      if (it !== undefined) onRequestDismiss(it);
-    },
-  );
+  // watch(
+  //   () => childApi.context.descriptor.requestedDismissAction,
+  //   (it) => {
+  //     if (it !== undefined) onRequestDismiss(it);
+  //   },
+  // );
 
   return {
     ...childApi,

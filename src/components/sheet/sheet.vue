@@ -33,6 +33,8 @@ const state = useModalExtras({
     :detent
     :dismissed="state.context.descriptor.isDismissed"
     :preopened="isSheetMountedAndRendered"
+    @dismiss="state.dismiss($event)"
+    @requestDismiss="state.requestDismiss($event)"
     @closed="state.commitClosedState()"
   >
     <template #default="{ dismiss }">

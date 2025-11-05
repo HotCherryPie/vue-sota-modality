@@ -297,6 +297,11 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
     value: Ref<NoInfer<TValue>>,
     allowSame: boolean = false,
   ) => {
+    if (isOpen(key)) {
+      if (import.meta.env.DEV) console.warn('This modal is already opened!');
+      return;
+    }
+
     if (!allowSame && isOpenSimilar(component)) {
       if (import.meta.env.DEV) console.warn('Similar modal is already opened!');
       return;
@@ -359,9 +364,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
 
     if (descriptor === undefined) {
       if (import.meta.env.DEV)
-        console.warn(
-          '.scheduleChildRemoving() was called for non-presented child!',
-        );
+        console.warn('.dismissChild() was called for non-presented child!');
       return;
     }
 

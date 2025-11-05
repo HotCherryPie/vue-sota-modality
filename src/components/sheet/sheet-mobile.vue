@@ -17,12 +17,13 @@ interface Props {
 
 interface Emits {
   closed: [];
-  dismiss: [action: ModalityLayout.Types.Child.DismissAction];
+  requestDismiss: [action: ModalityLayout.Types.Child.DismissAction];
 }
 
 interface Slots {
   default: (props: {
     dismiss: (action: ModalityLayout.Types.Child.DismissAction) => void;
+    requestDismiss: (action: ModalityLayout.Types.Child.DismissAction) => void;
   }) => unknown;
 }
 
@@ -44,7 +45,9 @@ const isOpen = computed(
 );
 
 const dismiss = (action: ModalityLayout.Types.Child.DismissAction) =>
-  void emit('dismiss', action);
+  void emit('requestDismiss', action);
+const requestDismiss = (action: ModalityLayout.Types.Child.DismissAction) =>
+  void emit('requestDismiss', action);
 
 // Do not use onanimationend/ontransitionend events because of inconsistency
 //  in cases of same-frame transition switch!
@@ -52,9 +55,9 @@ watchOnce(
   () => props.dismissed,
   async () => {
     await nextTick();
-    await Promise.all(
-      modalRef.value?.getAnimations().map((it) => it.finished) ?? [],
-    );
+    const animations =
+      modalRef.value?.getAnimations().map((it) => it.finished) ?? [];
+    await Promise.all(animations);
     emit('closed');
   },
 );
@@ -69,7 +72,7 @@ const backdropClickDismissAction: ModalityLayout.Types.Child.DismissAction = {
   <div :class="$style.root">
     <div
       :class="[$style.backdrop, isOpen && $style.open]"
-      @click="$emit('dismiss', backdropClickDismissAction)"
+      @click="dismiss(backdropClickDismissAction)"
     />
 
     <div
@@ -81,7 +84,7 @@ const backdropClickDismissAction: ModalityLayout.Types.Child.DismissAction = {
         scrollable && $style.scrollable,
       ]"
     >
-      <slot :dismiss />
+      <slot :dismiss :requestDismiss />
     </div>
   </div>
 </template>
@@ -135,8 +138,7 @@ const backdropClickDismissAction: ModalityLayout.Types.Child.DismissAction = {
   }
 
   &.scrollable {
-    @add-mixin hide-scroll;
-
+    scrollbar-width: thin;
     overflow: hidden auto;
   }
 

@@ -30,6 +30,16 @@ export interface UseModalOptions<TValue> {
   dismissOnRouteChange?: boolean;
 }
 
+const externalCancelDismissAction = {
+  intent: 'cancel',
+  source: { origin: 'external', input: 'unknown', description: undefined },
+} satisfies ModalityLayout.Types.Child.DismissAction;
+
+const externalResolveDismissAction = {
+  intent: 'resolve',
+  source: { origin: 'external', input: 'unknown', description: undefined },
+} satisfies ModalityLayout.Types.Child.DismissAction;
+
 export const useModal = <TComponent extends ModalityLayout.Types.Child>(
   component: TComponent,
   options: UseModalOptions<
@@ -58,15 +68,17 @@ export const useModal = <TComponent extends ModalityLayout.Types.Child>(
 
   // For internal usage.
   const dismiss_ = (action: ModalityLayout.Types.Child.DismissAction) => {
-    api.dismissChild(usageKey, action);
+    if (isOpened.value) api.dismissChild(usageKey, action);
   };
 
   // For public usage.
   const dismiss = (
-    intent: ModalityLayout.Types.Child.DismissAction.Intent,
-    description?: ModalityLayout.Types.Child.DismissSource.Description,
+    intent: ModalityLayout.Types.Child.DismissAction.Intent = 'cancel',
+    description:
+      | ModalityLayout.Types.Child.DismissSource.Description
+      | undefined,
   ) => {
-    dismiss_({
+    api.dismissChild(usageKey, {
       intent,
       source: { origin: 'external', input: 'unknown', description },
     });
@@ -80,51 +92,19 @@ export const useModal = <TComponent extends ModalityLayout.Types.Child>(
   >;
 
   const open = (...[data]: OpenFunctionArguments) => {
-    if (dismissOnValueChange) {
-      watchOnce(
-        valueRef,
-        () =>
-          void dismiss_({
-            intent: 'resolve',
-            source: {
-              origin: 'external',
-              input: 'unknown',
-              description: undefined,
-            },
-          }),
-      );
-    }
+    if (dismissOnValueChange)
+      watchOnce(valueRef, () => void dismiss_(externalResolveDismissAction));
 
     return api.openChild(component, usageKey, data, valueRef);
   };
 
   if (dismissOnScopeDispose)
-    tryOnScopeDispose(() => {
-      if (isOpened.value)
-        dismiss_({
-          intent: 'cancel',
-          source: {
-            origin: 'external',
-            input: 'unknown',
-            description: undefined,
-          },
-        });
-    });
+    tryOnScopeDispose(() => void dismiss_(externalCancelDismissAction));
 
   if (dismissOnRouteChange)
     watch(
       () => location.value.pathname,
-      () => {
-        if (isOpened.value)
-          dismiss_({
-            intent: 'cancel',
-            source: {
-              origin: 'external',
-              input: 'unknown',
-              description: undefined,
-            },
-          });
-      },
+      () => void dismiss_(externalCancelDismissAction),
     );
 
   return {
