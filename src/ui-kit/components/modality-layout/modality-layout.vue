@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { inject, provide, watch } from 'vue';
 
-import { INTERNAL_STATE_INJECTION_KEY, createState } from './modality-layout';
+import {
+  DEFAULT_INTERNAL_STATE_INJECTION_KEY,
+  createState,
+} from './modality-layout';
 import type { Types } from './modality-layout';
 import { ModalityLayoutChildContext } from './modality-layout-child-context';
 
@@ -10,9 +13,12 @@ const emit = defineEmits<Types.Emits>();
 defineSlots<Types.Slots>();
 
 const internalState =
-  props.state ?? inject(INTERNAL_STATE_INJECTION_KEY) ?? createState();
+  props.state
+  // eslint-disable-next-line vue/no-setup-props-reactivity-loss
+  ?? (props.scope === undefined ? undefined : inject(props.scope))
+  ?? createState();
 
-provide(INTERNAL_STATE_INJECTION_KEY, internalState);
+provide(DEFAULT_INTERNAL_STATE_INJECTION_KEY, internalState);
 
 // TODO: watchSync & call on isDismissed change
 // onDismiss: (descriptor) =>

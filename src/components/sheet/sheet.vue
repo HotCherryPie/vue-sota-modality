@@ -13,16 +13,17 @@ defineProps<Types.Props>();
 defineSlots<Types.Slots>();
 
 const isMobile = useMediaQuery('(width < 1024px)');
-const isSheetMountedAndRendered = useIsRendered();
+const isMountedAndRendered = useIsRendered();
 
 const SheetComponent = toRef(() =>
   isMobile.value ? SheetMobile : SheetDesktop,
 );
 
 const state = useModalExtras({
-  active: (it) => it.stackIndex.value === 0,
   lockScroll: true,
   defferClose: true,
+  // Also works with just `true`
+  acceptHardwareCloseRequests: (it) => it.stackIndex.value === 0,
 });
 </script>
 
@@ -32,7 +33,7 @@ const state = useModalExtras({
     :scrollable
     :detent
     :dismissed="state.context.descriptor.isDismissed"
-    :preopened="isSheetMountedAndRendered"
+    :preopened="isMountedAndRendered"
     @dismiss="state.dismiss($event)"
     @requestDismiss="state.requestDismiss($event)"
     @closed="state.commitClosedState()"

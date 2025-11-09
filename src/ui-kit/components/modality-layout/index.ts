@@ -10,6 +10,6 @@ export declare namespace ModalityLayout {
 // eslint-disable-next-line import/export
 export { default as ModalityLayout } from './modality-layout.vue';
 
-export * from './create-modality-layout-state';
-export * from './use-modality-layout-api';
-export * from './use-modality-layout-child-api';
+export { createModalityLayoutState } from './create-modality-layout-state';
+export { useModalityLayoutApi } from './use-modality-layout-api';
+export { useModalityLayoutChildApi } from './use-modality-layout-child-api';

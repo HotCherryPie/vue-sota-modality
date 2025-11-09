@@ -5,8 +5,8 @@ import { computed, nextTick, useTemplateRef } from 'vue';
 import type { ModalityLayout } from '../../ui-kit';
 import { useIsRendered } from '../../utils';
 
-const OPEN_DURATION = 1000; // 300
-const CLOSE_DURATION = 2000; // 200
+const OPEN_DURATION = 300; // 300
+const CLOSE_DURATION = 200; // 200
 
 interface Props {
   dismissed: boolean;

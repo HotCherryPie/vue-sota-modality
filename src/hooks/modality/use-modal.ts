@@ -7,6 +7,8 @@ import { useModalityLayoutApi } from '../../ui-kit';
 import type { ModalityLayout } from '../../ui-kit';
 import { useCurrentUrl } from '../../utils';
 
+import { modalsScope } from './scopes';
+
 type IfNever<T, TYes, TNo> = If<IsNever<T>, TYes, TNo>;
 type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
 
@@ -76,7 +78,7 @@ export const useModal = <TData, TValue>(
   const valueRef = (
     isRef(value) ? value : shallowRef(value)) as ShallowRef<TValue>;
 
-  const api = useModalityLayoutApi();
+  const api = useModalityLayoutApi(modalsScope);
   const location = useCurrentUrl();
 
   if (api === undefined)

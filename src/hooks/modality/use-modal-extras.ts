@@ -11,22 +11,20 @@ import type { MaybeReadonlyRefOrGetterWithArgument } from '../../utils';
 
 export interface UseModalExtrasOptions {
   /**
-   * Whether child considered "active".
-   *
-   * @default child.stackIndex === 0
-   */
-  active?: MaybeReadonlyRefOrGetterWithArgument<
-    boolean | undefined,
-    ModalityLayout.Types.Child.Context
-  >;
-
-  /**
    * Locks scroll on body. Releases automatically on moment, when modal
    *  becomes dismissed (before close animation).
    *
    * @default false
    */
   lockScroll?: MaybeReadonlyRefOrGetterWithArgument<
+    boolean | undefined,
+    ModalityLayout.Types.Child.Context
+  >;
+
+  /**
+   * @default false
+   */
+  acceptHardwareCloseRequests?: MaybeReadonlyRefOrGetterWithArgument<
     boolean | undefined,
     ModalityLayout.Types.Child.Context
   >;
@@ -56,11 +54,6 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
 
   if (childApi === undefined || layoutApi === undefined)
     throw new Error('<ModalityLayout> is missing in current scope!');
-
-  const active =
-    options.active === undefined ?
-      () => childApi.context.stackIndex.value === 0
-    : () => toValueWithArgument(options.active, childApi.context) ?? false;
 
   let isClosingOrClosed = false;
   const closePromise =
@@ -93,7 +86,11 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
   };
 
   useCloseWatcher({
-    enabled: active,
+    enabled: () =>
+      toValueWithArgument(
+        options.acceptHardwareCloseRequests,
+        childApi.context,
+      ),
     abusive: true,
     onCancel: () => void requestDismiss(closeWatcherDismissAction),
   });

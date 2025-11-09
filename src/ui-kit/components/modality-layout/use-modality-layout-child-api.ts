@@ -1,11 +1,13 @@
 import { inject } from 'vue';
 
-import { INTERNAL_STATE_INJECTION_KEY } from './modality-layout';
+import { DEFAULT_INTERNAL_STATE_INJECTION_KEY } from './modality-layout';
 import type { Types } from './modality-layout';
 import { MODALITY_LAYOUT_CHILD_CONTEXT_KEY } from './modality-layout-child-context';
 
-export const useModalityLayoutChildApi = () => {
-  const state = inject(INTERNAL_STATE_INJECTION_KEY);
+export const useModalityLayoutChildApi = (
+  scope: Types.Scope = DEFAULT_INTERNAL_STATE_INJECTION_KEY,
+) => {
+  const state = inject(scope);
   const context = inject(MODALITY_LAYOUT_CHILD_CONTEXT_KEY);
 
   if (context === undefined || state === undefined) return;

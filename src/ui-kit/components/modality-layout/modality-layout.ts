@@ -160,6 +160,8 @@ export declare namespace Types {
   >;
   /* eslint-enable ts/no-explicit-any */
 
+  export type Scope = InjectionKey<InternalState>;
+
   export namespace Props {
     // eslint-disable-next-line ts/no-empty-object-type
     export interface ExternalState extends InternalState {}
@@ -170,6 +172,8 @@ export declare namespace Types {
      * WARN: Not reactive! Can only be passed at first mount.
      */
     state?: Props.ExternalState | undefined;
+
+    scope?: Types.Scope | undefined;
   }
 
   export namespace Emits {
@@ -269,8 +273,7 @@ export interface CreateStateInit {
     | undefined;
 }
 
-export const INTERNAL_STATE_INJECTION_KEY: InjectionKey<InternalState> =
-  Symbol('');
+export const DEFAULT_INTERNAL_STATE_INJECTION_KEY: Types.Scope = Symbol('');
 
 export const createState = (init: CreateStateInit = {}): InternalState => {
   // We should not care about any possible changes in descriptors. Also `reactive`
