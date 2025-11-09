@@ -43,6 +43,11 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
   if (childApi === undefined || layoutApi === undefined)
     throw new Error('<ModalityLayout> is missing in current scope!');
 
+  const active =
+    options.active === undefined ?
+      () => childApi.context.stackIndex.value === 0
+    : () => toValueWithArgument(options.active, childApi.context) ?? false;
+
   let isClosingOrClosed = false;
   const closePromise =
     // eslint-disable-next-line ts/no-invalid-void-type -- not here
@@ -75,13 +80,8 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
   };
 
   useCloseWatcher({
-    enabled: () => toValueWithArgument(options.active, childApi.context),
+    enabled: active,
     abusive: true,
-    onClose: () =>
-      void onDismiss({
-        intent: 'cancel',
-        source: { origin: 'user', input: 'hardware', description: undefined },
-      }),
     onCancel: () =>
       void onRequestDismiss({
         intent: 'cancel',
@@ -89,12 +89,14 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
       }),
   });
 
-  // watch(
-  //   () => childApi.context.descriptor.requestedDismissAction,
-  //   (it) => {
-  //     if (it !== undefined) onRequestDismiss(it);
-  //   },
-  // );
+  watch(
+    () => childApi.context.descriptor.requestedDismissAction,
+    (it) => {
+      if (it === undefined) return;
+
+      console.log('Close request', it);
+    },
+  );
 
   return {
     ...childApi,

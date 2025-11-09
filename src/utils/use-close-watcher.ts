@@ -34,6 +34,11 @@ export const useCloseWatcher = (options: Options) => {
 
   const onClose = (event: CloseWatcherEventMap['close']) => {
     options.onClose?.(event);
+
+    if (options.abusive) {
+      watcher?.destroy();
+      init();
+    }
   };
 
   const onCancel = (event_: CloseWatcherEventMap['cancel']) => {
@@ -42,7 +47,7 @@ export const useCloseWatcher = (options: Options) => {
 
     options.onCancel?.(event);
 
-    if (options.abusive && event.defaultPrevented) {
+    if (options.abusive) {
       watcher?.destroy();
       init();
     }

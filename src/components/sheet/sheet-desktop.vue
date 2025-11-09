@@ -44,6 +44,7 @@ const isOpen = computed(
   () => (props.preopened || isRendered.value) && !props.dismissed,
 );
 
+// TODO: use `dismiss` event
 const dismiss = (action: ModalityLayout.Types.Child.DismissAction) =>
   void emit('requestDismiss', action);
 const requestDismiss = (action: ModalityLayout.Types.Child.DismissAction) =>
@@ -64,7 +65,11 @@ watchOnce(
 
 const backdropClickDismissAction: ModalityLayout.Types.Child.DismissAction = {
   intent: 'cancel',
-  source: { origin: 'user', input: 'ui', description: 'backdrop click' },
+  source: {
+    origin: 'user',
+    input: 'ui',
+    description: '<sheet-desktop> backdrop click',
+  },
 };
 </script>
 
