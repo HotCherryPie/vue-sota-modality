@@ -8,8 +8,6 @@ import type {
   ShallowRef,
 } from 'vue';
 
-import type { PosixTimestampInMilliseconds } from '../../../utils';
-
 export declare namespace Types {
   export namespace Child {
     export namespace DismissSource {
@@ -106,12 +104,12 @@ export declare namespace Types {
       /**
        * Time of child open request.
        */
-      calledAt: PosixTimestampInMilliseconds;
+      calledAt: Date;
 
       /**
        * Time of child dismiss request.
        */
-      dismissedAt: PosixTimestampInMilliseconds | undefined;
+      dismissedAt: Date | undefined;
     }
 
     export type DescriptorAfterDismiss<
@@ -346,7 +344,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
         isDismissed: false,
         requestedDismissAction: undefined,
         resolutionPromise,
-        calledAt: performance.now(),
+        calledAt: new Date(),
         dismissedAt: undefined,
       }) satisfies Types.Child.Descriptor<TData, TValue>;
 
@@ -364,6 +362,9 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
     key: Types.Child.Descriptor.Key,
     action: Types.Child.DismissAction,
   ) => {
+    // Make sure we have new object with new identity every time, regardless
+    //  of what user have passed.
+    const action_ = structuredClone(action);
     const descriptor = getChildByKey(key);
 
     if (descriptor === undefined) {
@@ -384,7 +385,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
 
     // Request for dismiss. This this not real dismiss, because this action can
     //  be discarded further.
-    descriptor.requestedDismissAction = action;
+    descriptor.requestedDismissAction = action_;
   };
 
   const dismissChild: InternalState['dismissChild'] = (
@@ -402,15 +403,16 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
 
     const updatedProperties = {
       isDismissed: true as const,
-      dismissedAt: performance.now(),
+      dismissedAt: new Date(),
       requestedDismissAction: action,
-    } as const;
+    } as const satisfies Partial<
+      Types.Child.DescriptorAfterDismiss<unknown, unknown>
+    >;
 
     const descriptorAfterDismiss = Object.assign(
       descriptor,
       updatedProperties,
-      // eslint-disable-next-line ts/no-explicit-any
-    ) satisfies Types.Child.DescriptorAfterDismiss<any, any>;
+    ) satisfies Types.Child.DescriptorAfterDismiss<unknown, unknown>;
 
     descriptor.resolutionPromise.resolve({
       value: descriptorAfterDismiss.value,

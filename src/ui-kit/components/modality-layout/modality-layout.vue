@@ -33,7 +33,7 @@ const handleChildMount = (
 ) => {
   emit('modalMounted', {
     descriptor,
-    wait: performance.now() - descriptor.calledAt,
+    wait: Date.now() - descriptor.calledAt.getTime(),
   });
 };
 
@@ -47,7 +47,7 @@ const handleChildUnmounted = (
     wait:
       descriptor.dismissedAt === undefined ?
         -1
-      : performance.now() - descriptor.dismissedAt,
+      : Date.now() - descriptor.dismissedAt.getTime(),
   });
 };
 

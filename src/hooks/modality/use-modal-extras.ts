@@ -10,6 +10,11 @@ import {
 import type { MaybeReadonlyRefOrGetterWithArgument } from '../../utils';
 
 export interface UseModalExtrasOptions {
+  /**
+   * Whether child considered "active".
+   *
+   * @default child.stackIndex === 0
+   */
   active?: MaybeReadonlyRefOrGetterWithArgument<
     boolean | undefined,
     ModalityLayout.Types.Child.Context
@@ -33,7 +38,16 @@ export interface UseModalExtrasOptions {
    * @default false
    */
   defferClose?: boolean;
+
+  onDismissRequest?:
+    | ((action: ModalityLayout.Types.Child.DismissAction) => boolean)
+    | undefined;
 }
+
+const closeWatcherDismissAction: ModalityLayout.Types.Child.DismissAction = {
+  intent: 'cancel',
+  source: { origin: 'user', input: 'hardware', description: undefined },
+};
 
 // TODO: add focus restoration here (not in useModal!)
 export const useModalExtras = (options: UseModalExtrasOptions) => {
@@ -65,28 +79,23 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
     },
   );
 
-  const onDismiss = (action: ModalityLayout.Types.Child.DismissAction) => {
-    // We allow scrolling earlier to not make the user to wait for the end of the animation
+  const dismiss = (action: ModalityLayout.Types.Child.DismissAction) => {
+    // We allow scrolling earlier to not make the user to wait for the end of
+    //  the animation.
     isBodyScrollLocked.value = false;
     isClosingOrClosed = true;
 
     childApi.dismiss(action, closePromise?.promise);
   };
 
-  const onRequestDismiss = (
-    action: ModalityLayout.Types.Child.DismissAction,
-  ) => {
+  const requestDismiss = (action: ModalityLayout.Types.Child.DismissAction) => {
     childApi.requestDismiss(action);
   };
 
   useCloseWatcher({
     enabled: active,
     abusive: true,
-    onCancel: () =>
-      void onRequestDismiss({
-        intent: 'cancel',
-        source: { origin: 'user', input: 'hardware', description: undefined },
-      }),
+    onCancel: () => void requestDismiss(closeWatcherDismissAction),
   });
 
   watch(
@@ -94,14 +103,16 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
     (it) => {
       if (it === undefined) return;
 
-      console.log('Close request', it);
+      const shouldDismiss = options.onDismissRequest?.(it) ?? true;
+
+      if (shouldDismiss) dismiss(it);
     },
   );
 
   return {
     ...childApi,
-    dismiss: onDismiss,
-    requestDismiss: onRequestDismiss,
+    dismiss,
+    requestDismiss,
     commitClosedState: () => void closePromise?.resolve(),
   };
 };
