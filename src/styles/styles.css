@@ -64,17 +64,17 @@ button {
   --focus-ring: #1eb0ff;
   align-items: center;
   background-color: var(--bg);
-  border-radius: 0.75em;
-  border: 0.0625em solid var(--border);
-  box-shadow: var(--shadow) 0 0.0625em 0.125em 0;
+  border-radius: 0.75rem;
+  border: 0.0625rem solid var(--border);
+  box-shadow: var(--shadow) 0 0.0625rem 0.125rem 0;
   color: var(--color);
   corner-shape: superellipse(1.6);
   cursor: pointer;
   display: flex;
   font-weight: 500;
-  height: 2em;
+  height: 2rem;
   justify-content: center;
-  padding: 0.333em 0.75em;
+  padding: 0.333rem 0.75rem;
   transition: color 200ms;
   user-select: none;
   white-space: nowrap;
@@ -85,6 +85,6 @@ button {
 
   &:focus-visible {
     border-color: var(--focus-ring);
-    outline: 0.333em solid color-mix(in srgb, var(--focus-ring), transparent);
+    outline: 0.333rem solid color-mix(in srgb, var(--focus-ring), transparent);
   }
 }

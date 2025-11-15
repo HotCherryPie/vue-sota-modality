@@ -34,29 +34,6 @@ provide(DEFAULT_INTERNAL_STATE_INJECTION_KEY, internalState);
 //     time: descriptor.calledAt,
 //   }),
 
-const handleChildMount = (
-  descriptor: Types.Child.Descriptor<unknown, unknown>,
-) => {
-  emit('modalMounted', {
-    descriptor,
-    wait: Date.now() - descriptor.calledAt.getTime(),
-  });
-};
-
-const handleChildUnmounted = (
-  descriptor: Types.Child.Descriptor<unknown, unknown>,
-) => {
-  emit('modalUnmounted', {
-    descriptor,
-    // There is a possible situation where modal can be unmounted without
-    //  `dismiss()` call. So we handle this case as `wait: -1`
-    wait:
-      descriptor.dismissedAt === undefined ?
-        -1
-      : Date.now() - descriptor.dismissedAt.getTime(),
-  });
-};
-
 watch(
   () =>
     [
@@ -110,8 +87,6 @@ const getStackIndex = (index: number) => {
             :modelValue="descriptor.value.value"
             :requestedDismissAction="descriptor.requestedDismissAction"
             @update:modelValue="descriptor.value.value = $event"
-            @vue:mounted="handleChildMount(descriptor)"
-            @vue:beforeUnmount="handleChildUnmounted(descriptor)"
           />
         </Suspense>
       </ModalityLayoutChildContext>

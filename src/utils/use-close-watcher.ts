@@ -9,10 +9,14 @@ interface Options {
   /**
    * @default true
    */
-  enabled?: MaybeReadonlyRefOrGetter<boolean | undefined>;
+  readonly enabled?: MaybeReadonlyRefOrGetter<boolean | undefined>;
 
-  onClose?: ((event: CloseWatcherEventMap['close']) => void) | undefined;
-  onCancel?: ((event: CloseWatcherEventMap['cancel']) => void) | undefined;
+  readonly onClose?:
+    | ((event: CloseWatcherEventMap['close']) => void)
+    | undefined;
+  readonly onCancel?:
+    | ((event: CloseWatcherEventMap['cancel']) => void)
+    | undefined;
 
   /**
    * Bypass "close-trapping" prevention logic.
@@ -26,7 +30,7 @@ interface Options {
    *
    * @default false
    */
-  abusive?: boolean | undefined;
+  readonly abusive?: boolean | undefined;
 }
 
 export const useCloseWatcher = (options: Options) => {

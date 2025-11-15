@@ -16,7 +16,7 @@ export interface UseModalExtrasOptions {
    *
    * @default false
    */
-  lockScroll?: MaybeReadonlyRefOrGetterWithArgument<
+  readonly lockScroll?: MaybeReadonlyRefOrGetterWithArgument<
     boolean | undefined,
     ModalityLayout.Types.Child.Context
   >;
@@ -24,7 +24,7 @@ export interface UseModalExtrasOptions {
   /**
    * @default false
    */
-  acceptHardwareCloseRequests?: MaybeReadonlyRefOrGetterWithArgument<
+  readonly acceptHardwareCloseRequests?: MaybeReadonlyRefOrGetterWithArgument<
     boolean | undefined,
     ModalityLayout.Types.Child.Context
   >;
@@ -35,9 +35,9 @@ export interface UseModalExtrasOptions {
    *
    * @default false
    */
-  defferClose?: boolean;
+  readonly defferClose?: boolean;
 
-  onDismissRequest?:
+  readonly onDismissRequest?:
     | ((action: ModalityLayout.Types.Child.DismissAction) => boolean)
     | undefined;
 }
@@ -45,7 +45,7 @@ export interface UseModalExtrasOptions {
 const closeWatcherDismissAction: ModalityLayout.Types.Child.DismissAction = {
   intent: 'cancel',
   source: { origin: 'user', input: 'hardware', description: undefined },
-};
+} as const;
 
 // TODO: add focus restoration here (not in useModal!)
 export const useModalExtras = (options: UseModalExtrasOptions) => {
@@ -111,5 +111,5 @@ export const useModalExtras = (options: UseModalExtrasOptions) => {
     dismiss,
     requestDismiss,
     commitClosedState: () => void closePromise?.resolve(),
-  };
+  } as const;
 };

@@ -14,8 +14,8 @@ type IfUndefined<T, TYes, TNo> = undefined extends T ? TYes : TNo;
 
 type UseModalOptionsValue<TValue> = IfUndefined<
   TValue,
-  { value?: TValue | ShallowRef<TValue> },
-  { value: TValue | ShallowRef<TValue> }
+  { readonly value?: TValue | ShallowRef<TValue> },
+  { readonly value: TValue | ShallowRef<TValue> }
 >;
 
 interface UseModalOptionsDefault {
@@ -25,17 +25,17 @@ interface UseModalOptionsDefault {
   /**
    * @defaultValue `true`
    */
-  dismissOnScopeDispose?: boolean;
+  readonly dismissOnScopeDispose?: boolean;
 
   /**
    * @defaultValue `true`
    */
-  dismissOnValueChange?: boolean;
+  readonly dismissOnValueChange?: boolean;
 
   /**
    * @defaultValue `true`
    */
-  dismissOnRouteChange?: boolean;
+  readonly dismissOnRouteChange?: boolean;
 }
 
 type UseModalOptions<TValue> = UseModalOptionsDefault
@@ -44,12 +44,12 @@ type UseModalOptions<TValue> = UseModalOptionsDefault
 const externalCancelDismissAction = {
   intent: 'cancel',
   source: { origin: 'external', input: 'unknown', description: undefined },
-} satisfies ModalityLayout.Types.Child.DismissAction;
+} as const satisfies ModalityLayout.Types.Child.DismissAction;
 
 const externalResolveDismissAction = {
   intent: 'resolve',
   source: { origin: 'external', input: 'unknown', description: undefined },
-} satisfies ModalityLayout.Types.Child.DismissAction;
+} as const satisfies ModalityLayout.Types.Child.DismissAction;
 
 type UseModalArguments<TData, TValue> = IfUndefined<
   TValue,
@@ -101,9 +101,7 @@ export const useModal = <TData, TValue>(
   ) => {
     if (key === undefined) {
       if (import.meta.env.DEV)
-        console.warn(
-          '[useModal] You try to dismiss child which is not open yet!',
-        );
+        console.warn('You try to dismiss child which is not open yet!');
       return;
     }
 
@@ -121,14 +119,12 @@ export const useModal = <TData, TValue>(
 
   const open = (...[data]: OpenFunctionArguments) => {
     if (api.isOpen(key)) {
-      if (import.meta.env.DEV)
-        console.warn('[useModal] This modal is already opened!');
+      if (import.meta.env.DEV) console.warn('This modal is already opened!');
       return;
     }
 
     if (api.isOpenSimilar(component)) {
-      if (import.meta.env.DEV)
-        console.warn('[useModal] Similar modal is already opened!');
+      if (import.meta.env.DEV) console.warn('Similar modal is already opened!');
       return;
     }
 
@@ -139,7 +135,7 @@ export const useModal = <TData, TValue>(
     const handle = api.openChild(component, data!, valueRef);
     key = handle?.key;
 
-    return handle?.resolutionPromise;
+    return handle?.resolution;
   };
 
   if (dismissOnScopeDispose)
@@ -156,5 +152,5 @@ export const useModal = <TData, TValue>(
     dismiss,
     isOpened,
     isOpenedSimilar,
-  };
+  } as const;
 };

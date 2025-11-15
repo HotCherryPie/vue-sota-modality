@@ -22,5 +22,5 @@ export const useModalityLayoutChildApi = (
   const requestDismiss = (action: Types.Child.DismissAction) =>
     void state.requestChildDismiss(context.descriptor.key, action);
 
-  return { context, dismiss, requestDismiss };
+  return { context, dismiss, requestDismiss } as const;
 };

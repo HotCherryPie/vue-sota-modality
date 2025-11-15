@@ -13,12 +13,12 @@ export interface UseAsyncComponentOptions {
   /**
    * Number of prefetch/fetch retries
    */
-  retries?: number | undefined;
+  readonly retries?: number | undefined;
 
   /**
    * Whether component should be prefetched.
    */
-  prefetch?: MaybeReadonlyRefOrGetter<boolean | undefined>;
+  readonly prefetch?: MaybeReadonlyRefOrGetter<boolean | undefined>;
 }
 
 /**
