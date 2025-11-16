@@ -42,11 +42,8 @@ const useNavigationApi = () => {
   if (initialized) return;
   /* eslint-disable */
   (globalThis.window as any).navigation.addEventListener(
-    'navigate',
-    (event: any) => {
-      if (!event.canIntercept) return;
-      event.intercept({ handler: () => void update() });
-    },
+    'navigatesuccess',
+    () => void update(),
   );
   /* eslint-enable */
 };
