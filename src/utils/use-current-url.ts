@@ -42,7 +42,8 @@ const useNavigationApi = () => {
   if (initialized) return;
   /* eslint-disable */
   (globalThis.window as any).navigation.addEventListener(
-    'navigatesuccess',
+    'currententrychange',
+    // 'navigatesuccess',
     () => void update(),
   );
   /* eslint-enable */
