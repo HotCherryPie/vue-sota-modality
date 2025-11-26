@@ -4,13 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "packageManager": "npm@10.9.0",
-  "engineStrict": true,
   "engines": {
     "node": ">=22.21.0"
   },
   "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22.21.0",
+      "onFail": "error"
+    },
     "packageManager": {
       "name": "npm",
+      "version": ">=10.9.0",
       "onFail": "error"
     }
   },
