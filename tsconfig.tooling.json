@@ -1,7 +1,7 @@
 {
   "extends": [
     "@my/configs.js/tsconfig.base.json",
-    "@my/configs.js/tsconfig.base.node@22.json"
+    "@my/configs.js/tsconfig.base.node@24.json"
   ],
   "include": [
     "**/.config/**/*.*",
