@@ -46,6 +46,9 @@ const notifications = useNotification(Notification);
 
 <!-- eslint-disable vue/enforce-style-attribute -->
 <style>
+html {
+  background-color: #eee;
+}
 main {
   display: contents;
 }
@@ -59,7 +62,6 @@ main {
   justify-content: center;
   gap: 0.5em;
   min-height: 100dvh;
-  background-color: #eee;
 }
 
 .modalLayout {
