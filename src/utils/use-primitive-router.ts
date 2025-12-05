@@ -19,13 +19,17 @@ export interface PrimitiveRouter<TRouteName extends string> {
 
 export interface UsePrimitiveRouterOptions<TRouteName extends string> {
   initialRoute: NoInfer<TRouteName>;
+  initialHistory?: NoInfer<TRouteName>[] | undefined;
 }
 
 export const usePrimitiveRouter = <TRouteName extends string>(
   options: UsePrimitiveRouterOptions<NoInfer<TRouteName>>,
 ): PrimitiveRouter<NoInfer<TRouteName>> => {
   const routes = shallowReactive<Array<PrimitiveRouter.Route<TRouteName>>>([]);
-  const navigationStack = shallowReactive<TRouteName[]>([options.initialRoute]);
+  const navigationStack = shallowReactive<TRouteName[]>([
+    ...(options.initialHistory ?? []),
+    options.initialRoute,
+  ]);
   const canNavigateBack = toRef(() => navigationStack.length > 1);
   // eslint-disable-next-line ts/no-non-null-assertion -- should be guaranteed
   const currentRouteName = toRef(() => navigationStack.at(-1)!);
