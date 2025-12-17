@@ -7,7 +7,9 @@ import { createModalityLayoutState } from './ui-kit';
 
 const app = createApp(App);
 
-createModalityLayoutState(modalsScope, app);
-createModalityLayoutState(notificationsScope, app);
+app.runWithContext(() => {
+  app.provide(modalsScope, createModalityLayoutState());
+  app.provide(notificationsScope, createModalityLayoutState());
+});
 
 app.mount('#app');

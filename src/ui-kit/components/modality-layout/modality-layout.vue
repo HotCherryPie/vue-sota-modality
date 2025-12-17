@@ -12,6 +12,10 @@ const props = defineProps<Types.Props>();
 const emit = defineEmits<Types.Emits>();
 defineSlots<Types.Slots>();
 
+// WARN: current implementation prevents scope override. This means that there
+//  cannot be <ModalityLayout scope="foo"> nested inside another
+//  <ModalityLayout scope="foo">.
+// TODO(?): consider not using state inject.
 const internalState =
   props.state
   // eslint-disable-next-line vue/no-setup-props-reactivity-loss
@@ -22,23 +26,17 @@ provide(DEFAULT_INTERNAL_STATE_INJECTION_KEY, internalState);
 
 // TODO: watchSync & call on isDismissed change
 // onDismiss: (descriptor) =>
-//     void emit('modalDismiss', {
-//       descriptor,
-//       time: descriptor.dismissedAt,
-//     }),
+//     void emit('modalDismiss', { descriptor })
 
 // TODO: watchSync & call on array change
 // onOpen: (descriptor) =>
-//   void emit('modalOpen', {
-//     descriptor,
-//     time: descriptor.calledAt,
-//   }),
+//   void emit('modalOpen', { descriptor })
 
 watch(
   () =>
     [
       internalState.children.size > 0,
-      // TODO: remove `Iterator.from()` after fix
+      // TODO(3rd-party): remove `Iterator.from()` after fix
       //  https://github.com/vuejs/core/issues/12615
       Iterator.from(internalState.children.values()).some(
         (it) => !it.isDismissed,
@@ -51,7 +49,7 @@ watch(
 
 // Stack index exist only for active modals.
 const getStackIndex = (index: number) => {
-  // TODO: remove `Iterator.from()` after fix
+  // TODO(3rd-party): remove `Iterator.from()` after fix
   //  https://github.com/vuejs/core/issues/12615
   const child = Iterator.from(internalState.children.values()).toArray();
 

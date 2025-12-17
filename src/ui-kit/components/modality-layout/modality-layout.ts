@@ -66,7 +66,6 @@ export declare namespace Types {
       export type Key = string;
     }
 
-    // TODO: make all readonly
     export interface Descriptor<TData = never, TValue = never> {
       readonly component: Child<TData, TValue>;
 
@@ -178,24 +177,19 @@ export declare namespace Types {
   }
 
   export namespace Emits {
-    export interface ChildOpenEvent {
+    export interface ChildOpenedEvent {
       readonly descriptor: Child.Descriptor<unknown, unknown>;
-
-      /* performance.now*() if .open() call */
-      readonly time: number;
     }
 
-    export interface ChildDismissEvent {
+    export interface ChildDismissedEvent {
       readonly descriptor: Types.Child.DescriptorAfterDismiss<unknown, unknown>;
-
-      /* performance.now*() if .dismiss() call */
-      readonly time: number;
     }
   }
 
   export interface Emits {
-    modalOpen: [event: Emits.ChildOpenEvent];
-    modalDismiss: [event: Emits.ChildDismissEvent];
+    childOpened: [event: Emits.ChildOpenedEvent];
+    childDismissed: [event: Emits.ChildDismissedEvent];
+
     presenceChange: [
       state: { someChildAreShown: boolean; someChildAreActive: boolean },
     ];
@@ -260,6 +254,9 @@ export interface CreateStateInit {
 
 export const DEFAULT_INTERNAL_STATE_INJECTION_KEY: Types.Scope = Symbol('');
 
+// TODO(?): consider migration of state to class with EventEmitter parent.
+//   https://github.com/DerZade/typescript-event-target/blob/master/src/TypedEventTarget.ts
+// TODO(?): consider making Descriptor freezed/cloned flat object for outer world.
 export const createState = (init: CreateStateInit = {}): InternalState => {
   // We should not care about any possible changes in descriptors. Also `reactive`
   //  unwraps refs, but at least `requestedDismissAction` should be preserved as is.
@@ -290,7 +287,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
   ) => {
     if (component === undefined) return [];
 
-    // TODO: remove `Iterator.from()` after fix
+    // TODO(3rd-party): remove `Iterator.from()` after fix
     //  https://github.com/vuejs/core/issues/12615
     return Iterator.from(children.values())
       .filter((it) => it.component === component)
@@ -311,7 +308,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
   ) => {
     if (component === undefined) return false;
 
-    // TODO: remove `Iterator.from()` after fix
+    // TODO(3rd-party): remove `Iterator.from()` after fix
     //  https://github.com/vuejs/core/issues/12615
     return Iterator.from(children.values()).some(
       (it) => it.component === component && !it.isDismissed,
@@ -329,24 +326,28 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
     const resolutionPromise =
       Promise.withResolvers<Types.Child.Resolution<TValue>>();
 
-    // @ts-expect-error "Type 'Child<TData, TValue>' is not assignable to
-    //  type 'Child<unknown, unknown>' with 'exactOptionalPropertyTypes: true'"
-    const descriptor: Types.Child.Descriptor<unknown, unknown> =
-      shallowReactive({
-        component,
-        key,
-        data,
-        value,
-        isDismissed: false,
-        requestedDismissAction: undefined,
-        resolutionPromise,
-        calledAt: new Date(),
-        dismissedAt: undefined,
-      }) satisfies Types.Child.Descriptor<TData, TValue>;
+    // Type specifier and type `satisfies` should both be used here because
+    //  `shallowReactive` call.
+    const descriptor: Types.Child.Descriptor<TData, TValue> = shallowReactive({
+      component,
+      key,
+      data,
+      value,
+      isDismissed: false,
+      requestedDismissAction: undefined,
+      resolutionPromise,
+      calledAt: new Date(),
+      dismissedAt: undefined,
+    } satisfies Types.Child.Descriptor<TData, TValue>);
 
-    state.children.set(key, descriptor);
+    state.children.set(
+      key,
+      // eslint-disable-next-line ts/no-unsafe-type-assertion
+      descriptor as Types.Child.Descriptor<unknown, unknown>,
+    );
 
-    init.onOpen?.(descriptor);
+    // eslint-disable-next-line ts/no-unsafe-type-assertion
+    init.onOpen?.(descriptor as Types.Child.Descriptor<unknown, unknown>);
 
     return {
       key,

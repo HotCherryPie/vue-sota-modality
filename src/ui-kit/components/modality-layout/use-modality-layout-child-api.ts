@@ -12,13 +12,11 @@ export const useModalityLayoutChildApi = (
 
   if (context === undefined || state === undefined) return;
 
-  // TODO: emit @close?
   const dismiss = (
     action: Types.Child.DismissAction,
     promise?: Promise<unknown>,
   ) => void state.dismissChild(context.descriptor.key, action, promise);
 
-  // TODO: emit @cancel?
   const requestDismiss = (action: Types.Child.DismissAction) =>
     void state.requestChildDismiss(context.descriptor.key, action);
 

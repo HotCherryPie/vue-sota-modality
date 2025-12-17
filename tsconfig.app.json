@@ -1,9 +1,9 @@
 {
-  "include": ["src/**/*.*", "src/**/*.vue"],
   "extends": [
     "@my/configs.js/tsconfig.base.json",
     "@my/configs.js/tsconfig.base.vite.json"
   ],
+  "include": ["src/**/*.*", "src/**/*.vue"],
 
   "compilerOptions": {
     // Without this `*.tsbuildinfo` file will be created on project root.
@@ -12,17 +12,13 @@
     "composite": true,
     "noEmit": true,
 
-    // Otherwise utility libraries like @vueuse/* can cause lin errors because
+    // Otherwise utility libraries like @vueuse/* can cause lint errors because
     //  their `lib` target is almost always set to `esnext` and the use
     //  sometimes unavailable API's.
     "skipLibCheck": true,
 
     "lib": ["ES2024", "DOM", "DOM.Iterable", "ESNext.Iterator"],
 
-    // TODO: move to @my/configs.js ?
-    "target": "esnext",
-
-    // TODO: move to @my/configs.js
     "types": ["vite/client"]
   }
 }

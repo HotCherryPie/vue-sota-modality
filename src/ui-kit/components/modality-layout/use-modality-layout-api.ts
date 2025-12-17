@@ -15,6 +15,6 @@ export const useModalityLayoutApi = (
 
   return {
     ...filteredState,
-    // TODO: add `children.size`
+    // TODO(?): add `children.size`
   } as const;
 };

@@ -47,7 +47,6 @@ const closeWatcherDismissAction: ModalityLayout.Types.Child.DismissAction = {
   source: { origin: 'user', input: 'hardware', description: undefined },
 } as const;
 
-// TODO: add focus restoration here (not in useModal!)
 export const useModalExtras = (options: UseModalExtrasOptions) => {
   const childApi = useModalityLayoutChildApi();
   const layoutApi = useModalityLayoutApi();
