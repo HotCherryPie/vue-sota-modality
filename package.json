@@ -44,11 +44,11 @@
     "eslint": "~9.39.1",
     "prettier": "~3.7.3",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.2.10",
+    "vite": "npm:rolldown-vite@7.2.11",
     "vue-tsc": "~3.1.5"
   },
   "overrides": {
-    "vite": "npm:rolldown-vite@7.2.10",
+    "vite": "npm:rolldown-vite@7.2.11",
     "is-core-module": "npm:@nolyfill/is-core-module@^1"
   }
 }
