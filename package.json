@@ -29,26 +29,26 @@
     "@:nolyfill": "npx nolyfill"
   },
   "dependencies": {
-    "@vueuse/core": "~14.1.0",
-    "dompurify": "~3.3.0",
-    "type-fest": "~5.3.0",
-    "vue": "~3.5.25",
-    "vue-component-type-helpers": "~3.1.5",
-    "vue-router": "~4.6.3"
+    "@vueuse/core": "~14.2.1",
+    "dompurify": "~3.3.1",
+    "type-fest": "~5.4.4",
+    "vue": "~3.5.28",
+    "vue-component-type-helpers": "~3.1.8",
+    "vue-router": "~4.6.4"
   },
   "devDependencies": {
-    "@my/configs.js": "git+https://github.com/HotCherryPie/configs.js.git#semver:v0.0.0-alpha-13",
+    "@my/configs.js": "git+https://github.com/HotCherryPie/configs.js.git#semver:v0.0.0-alpha-14",
     "@my/utils.css": "git+https://github.com/HotCherryPie/utils.css.git#semver:v0.0.0-alpha-5",
     "@types/node": "~24.10.3",
-    "@vitejs/plugin-vue": "~6.0.2",
-    "eslint": "~9.39.1",
-    "prettier": "~3.7.3",
+    "@vitejs/plugin-vue": "~6.0.4",
+    "eslint": "~9.39.3",
+    "prettier": "~3.8.1",
     "typescript": "~5.9.3",
-    "vite": "npm:rolldown-vite@7.2.11",
-    "vue-tsc": "~3.1.5"
+    "vite": "npm:rolldown-vite@7.3.1",
+    "vue-tsc": "~3.2.4"
   },
   "overrides": {
-    "vite": "npm:rolldown-vite@7.2.11",
+    "vite": "npm:rolldown-vite@7.3.1",
     "is-core-module": "npm:@nolyfill/is-core-module@^1"
   }
 }
