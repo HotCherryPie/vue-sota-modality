@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watchOnce } from '@vueuse/core';
 import { computed, nextTick, useTemplateRef } from 'vue';
+import type { Slot } from 'vue';
 
 import type { ModalityLayout } from '../../ui-kit';
 import { useIsRendered } from '../../utils';
@@ -21,10 +22,14 @@ interface Emits {
 }
 
 interface Slots {
-  default: (props: {
-    dismiss: (action: ModalityLayout.Types.Child.DismissAction) => void;
-    requestDismiss: (action: ModalityLayout.Types.Child.DismissAction) => void;
-  }) => unknown;
+  default: Slot<{
+    readonly dismiss: (
+      action: ModalityLayout.Types.Child.DismissAction,
+    ) => void;
+    readonly requestDismiss: (
+      action: ModalityLayout.Types.Child.DismissAction,
+    ) => void;
+  }>;
 }
 
 const props = defineProps<Props>();

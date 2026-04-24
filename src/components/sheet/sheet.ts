@@ -1,3 +1,5 @@
+import type { Slot } from 'vue';
+
 import type { ModalityLayout } from '../../ui-kit';
 
 export declare namespace Types {
@@ -24,8 +26,10 @@ export declare namespace Types {
   }
 
   export interface Slots {
-    default: (props: {
-      dismiss: (action: ModalityLayout.Types.Child.DismissAction) => void;
-    }) => unknown;
+    default: Slot<{
+      readonly dismiss: (
+        action: ModalityLayout.Types.Child.DismissAction,
+      ) => void;
+    }>;
   }
 }

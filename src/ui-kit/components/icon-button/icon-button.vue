@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { Slot } from 'vue';
+
 export interface IconButtonProps {
   type: HTMLButtonElement['type'];
 }
 
 export interface IconButtonSlots {
-  default: () => unknown;
+  default: Slot;
 }
 
 defineProps<IconButtonProps>();

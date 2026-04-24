@@ -6,6 +6,7 @@ import type {
   Ref,
   ShallowReactive,
   ShallowRef,
+  Slot,
 } from 'vue';
 
 export declare namespace Types {
@@ -196,7 +197,7 @@ export declare namespace Types {
   }
 
   export interface Slots {
-    default: () => unknown;
+    default: Slot;
   }
 }
 
