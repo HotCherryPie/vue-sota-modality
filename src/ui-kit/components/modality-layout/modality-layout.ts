@@ -400,7 +400,7 @@ export const createState = (init: CreateStateInit = {}): InternalState => {
     }
 
     const updatedProperties = {
-      isDismissed: true as const,
+      isDismissed: true,
       dismissedAt: new Date(),
       requestedDismissAction: action,
     } as const satisfies Partial<
