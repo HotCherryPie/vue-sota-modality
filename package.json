@@ -37,8 +37,8 @@
     "vue-router": "~4.6.4"
   },
   "devDependencies": {
-    "@my/configs.js": "git+https://github.com/HotCherryPie/configs.js.git#semver:v0.0.0-alpha-16",
-    "@my/utils.css": "git+https://github.com/HotCherryPie/utils.css.git#semver:v0.0.0-alpha-6",
+    "@my/configs.js": "github:HotCherryPie/configs.js.git#v0.0.0-alpha-16",
+    "@my/utils.css": "github:HotCherryPie/utils.css.git#v0.0.0-alpha-6",
     "@types/node": "~24.12.2",
     "@vitejs/plugin-vue": "~6.0.4",
     "eslint": "~9.39.4",
